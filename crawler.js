@@ -17,7 +17,7 @@ async function own(ns, target) {
 		return;
 	}
 	if (ns.fileExists("crawler.js", target)) return;
-	await ns.scp("invade.js", target);
+	await ns.scp("harvest.js", target);
 	await ns.scp("crawler.js", target);
 	
 	await spread(ns, target);
@@ -25,10 +25,10 @@ async function own(ns, target) {
 
 async function startHack(ns, target) {
 	const availableRam = ns.getServerMaxRam(target) - ns.getServerUsedRam(target)
-	const invadeRam = 2.4;
-	const threads = Math.floor(availableRam / invadeRam);
+	const harvestRam = 2.4;
+	const threads = Math.floor(availableRam / harvestRam);
 	if (threads) {
-		ns.exec("invade.js", target, threads, target);
+		ns.exec("harvest.js", target, threads, target);
 	} 
 	else {
 		ns.tprint("[ERROR]: ", target, " has no available RAM");
