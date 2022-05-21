@@ -8,7 +8,7 @@ function log(ns, target, message) {
 }
 
 function validTarget(ns, target) {
-	const alreadyRunning = ns.scriptRunning("invade.js", target);
+	const alreadyRunning = ns.scriptRunning("harvest.js", target);
 	const moneyAvailable = ns.getServerMoneyAvailable(target) > 0;
 	const rootAccess = ns.hasRootAccess(target);
 	const hackLevel = ns.getServerRequiredHackingLevel(target) <= ns.getHackingLevel();
