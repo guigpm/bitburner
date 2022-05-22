@@ -1,4 +1,4 @@
-import { waitTargetPid, deploy } from './lib.js';
+import { waitTargetPid, deploy, openPorts } from './lib.js';
 import { log, logLevel } from './log.js';
 
 /**
@@ -28,26 +28,11 @@ async function spread(ns, target) {
  */
 async function own(ns, target) {
   log.info(ns, `Gaining Root Access on ${target}`);
-  const portsRequired = ns.getServerNumPortsRequired(target);
-  if (portsRequired > 2) {
-    log.debug(ns, `${target} is too hard!`);
-    return;
-  }
-
-  if (portsRequired >= 2) {
-    if (!ns.fileExists("FTPCrack.exe", "home")) {
-      return;
-    }
-    ns.ftpcrack(target);
-  }
-  if (portsRequired >= 1) {
-    if (!ns.fileExists("BruteSSH.exe", "home")) {
-      return;
-    }
-    ns.brutessh(target);
-  }
-  if (portsRequired >= 0) {
+  if (openPorts(ns, target)) {
     ns.nuke(target);
+    log.info(ns, `Nuked on ${target}`);
+  } else {
+    log.error(ns, `Can't open ports on ${target}`);
   }
 }
 
