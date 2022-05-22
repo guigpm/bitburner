@@ -38,7 +38,14 @@ export function enableFunctionLog(ns, fn) {
  * @param {string} hostName [optional]
  */
 export async function deploy(ns, target, hostName = undefined) {
+  log.info(ns, `Deleting old scripts from ${target}`, hostName ?? ns.getHostname());
+  const targetSources = ns.ls(target, '.js');
+  for (const file of targetSources) {
+    ns.rm(file, target);
+  }
+  log.info(ns, `Copying scripts to ${target}`, hostName ?? ns.getHostname());
   const sources = ns.ls(hostName ?? ns.getHostname(), '.js');
+  log.debug(ns, sources);
   for (const file of sources) {
     await ns.scp(file, target);
   }
@@ -65,8 +72,9 @@ export function canBeHacked(ns, target, scriptRunningName = 'harvest.js') {
   return !alreadyRunning && moneyAvailable && rootAccess && hackLevel;
 }
 
-
 /**
+ * 
+ * @remarks RAM cost: 0.45 GB
  * 
  * @param {import("./NameSpace").NS} ns
  * @param {string} target
@@ -123,6 +131,74 @@ export function openPorts(ns, target, portsRequired = undefined) {
   }
 
   return true;
+}
+
+/**
+ * 
+ * @param {import("./NameSpace").NS} ns 
+ * @param {int} maxDistance [optional]
+ * @returns 
+ */
+export async function serversWithinDistance(ns, maxDistance = undefined) {
+  if (maxDistance == undefined) {
+    if (ns.fileExists("DeepscanV2.exe")) {
+      maxDistance = 10;
+    } else if (ns.fileExists("DeepscanV1.exe")) {
+      maxDistance = 5;
+    } else {
+      maxDistance = 3;
+    }
+  }
+  const visited = [];
+  const queue = new Queue();
+  queue.enqueue({ "name": "home", "distance": 1 })
+
+  while (!queue.isEmpty) {
+    const current = queue.dequeue();
+    visited.push(current.name);
+
+    const adjacents = ns.scan(current.name);
+    if (current.distance <= maxDistance) {
+      for (const adjacent of adjacents) {
+        if (!visited.includes(adjacent)) {
+          queue.enqueue({ "name": adjacent, "distance": current.distance + 1 });
+        }
+      }
+    }
+  }
+  return visited
+}
+
+export class Queue {
+  constructor() {
+    this.elements = {};
+    this.head = 0;
+    this.tail = 0;
+  }
+  enqueue(element) {
+    this.elements[this.tail] = element;
+    this.tail++;
+  }
+  enqueueMany(listOfElements) {
+    for (const element of listOfElements) {
+      this.enqueue(element);
+    }
+  }
+  dequeue() {
+    const item = this.elements[this.head];
+    delete this.elements[this.head];
+    this.head++;
+    return item;
+  }
+  peek() {
+    return this.elements[this.head];
+  }
+  get length() {
+    return this.tail - this.head;
+  }
+  get isEmpty() {
+    return this.length === 0;
+  }
 }
 
 export function Lib() { };
