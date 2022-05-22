@@ -65,4 +65,64 @@ export function canBeHacked(ns, target, scriptRunningName = 'harvest.js') {
   return !alreadyRunning && moneyAvailable && rootAccess && hackLevel;
 }
 
-export function Lib() {};
+
+/**
+ * 
+ * @param {import("./NameSpace").NS} ns
+ * @param {string} target
+ * @param {int} portsRequired [optional]
+ */
+export function openPorts(ns, target, portsRequired = undefined) {
+  if (portsRequired === undefined) {
+    portsRequired = ns.getServerNumPortsRequired(target);
+  }
+
+  // BruteSSH.exe - Opens up SSH Ports.
+  // FTPCrack.exe - Opens up FTP Ports.
+  // relaySMTP.exe - Opens up SMTP Ports.
+  // HTTPWorm.exe - Opens up HTTP Ports.
+  // SQLInject.exe - Opens up SQL Ports.
+  // ServerProfiler.exe - Displays detailed information about a server.
+  // DeepscanV1.exe - Enables 'scan-analyze' with a depth up to 5.
+  // DeepscanV2.exe - Enables 'scan-analyze' with a depth up to 10.
+  // AutoLink.exe - Enables direct connect via 'scan-analyze'.
+
+  if (portsRequired > 5) {
+    return false;
+  }
+
+  if (portsRequired >= 5) {
+    if (!ns.fileExists("SQLInject.exe", "home")) {
+      return false;
+    }
+    ns.sqlinject(target);
+  }
+  if (portsRequired >= 4) {
+    if (!ns.fileExists("HTTPWorm.exe", "home")) {
+      return false;
+    }
+    ns.httpworm(target);
+  }
+  if (portsRequired >= 3) {
+    if (!ns.fileExists("relaySMTP.exe", "home")) {
+      return false;
+    }
+    ns.relaysmtp(target);
+  }
+  if (portsRequired >= 2) {
+    if (!ns.fileExists("FTPCrack.exe", "home")) {
+      return false;
+    }
+    ns.ftpcrack(target);
+  }
+  if (portsRequired >= 1) {
+    if (!ns.fileExists("BruteSSH.exe", "home")) {
+      return false;
+    }
+    ns.brutessh(target);
+  }
+
+  return true;
+}
+
+export function Lib() { };
