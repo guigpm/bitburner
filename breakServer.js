@@ -19,15 +19,16 @@ export async function main(ns) {
   const harvestThreads = 1;
 
   let pid = 0;
+  log.info(ns, `Breaking server ${target}`);
   while (true) {
     if (ns.getServerSecurityLevel(target) > securityThresh) {
-      log.info(ns, "Weak " + target, executer)
+      log.debug(ns, "Weak " + target)
       pid = ns.exec("weak.js", executer, weakThreads, target);
     } else if (ns.getServerMoneyAvailable(target) < moneyThresh) {
-      log.info(ns, "Grow " + target, executer)
+      log.debug(ns, "Grow " + target)
       pid = ns.exec("grow.js", executer, growThreads, target);
     } else {
-      log.info(ns, "Harvest " + target, executer)
+      log.debug(ns, "Harvest " + target)
       pid = ns.exec("harvest.js", target, harvestThreads, target);
       break;
     }

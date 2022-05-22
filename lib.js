@@ -65,10 +65,13 @@ export function canBeHacked(ns, target, scriptRunningName = 'harvest.js') {
   const rootAccess = ns.hasRootAccess(target);
   const hackLevel = ns.getServerRequiredHackingLevel(target) <= ns.getHackingLevel();
 
-  alreadyRunning && log.info(ns, "is already being hacked", target);
-  !moneyAvailable && log.info(ns, "has no money", target);
-  !rootAccess && log.info(ns, "doesnt have root access", target);
-  !hackLevel && log.info(ns, "hack level is above mine", target);
+  let reasons = "";
+  if (alreadyRunning) reasons += "already being hacked";
+  if (!moneyAvailable) reasons += (reasons.length ? ' / ' : '') + "no money";
+  if (!rootAccess) reasons += (reasons.length ? ' / ' : '') + "no root access";
+  if (!hackLevel) reasons += (reasons.length ? ' / ' : '') + "player hack level too low";
+
+  if (reasons.length > 0) log.info(ns, `Cannot hack ${target}: ${reasons}`);
 
   return !alreadyRunning && moneyAvailable && rootAccess && hackLevel;
 }
@@ -140,11 +143,11 @@ export function openPorts(ns, target, portsRequired = undefined) {
  * @param {int} maxDistance [optional]
  * @returns 
  */
-export async function serversWithinDistance(ns, maxDistance = undefined) {
+export function serversWithinDistance(ns, maxDistance = undefined) {
   if (maxDistance == undefined) {
-    if (ns.fileExists("DeepscanV2.exe")) {
+    if (ns.fileExists("DeepscanV2.exe", "home")) {
       maxDistance = 10;
-    } else if (ns.fileExists("DeepscanV1.exe")) {
+    } else if (ns.fileExists("DeepscanV1.exe", "home")) {
       maxDistance = 5;
     } else {
       maxDistance = 3;

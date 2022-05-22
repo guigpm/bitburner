@@ -1,4 +1,4 @@
-import { canBeHacked, disableFunctionLog } from './lib.js';
+import { canBeHacked, disableFunctionLog, serversWithinDistance } from './lib.js';
 import { log, logLevel } from './log.js';
 
 let activeExecuters = [];
@@ -15,7 +15,7 @@ export async function main(ns) {
 
   log.logLevel = logLevel.debug;
 
-  const servers = ns.scan();
+  const servers = serversWithinDistance(ns, 10);
   let pids = [];
 
   /** @param {string} server */
@@ -25,7 +25,7 @@ export async function main(ns) {
 
   activeExecuters = servers.filter((server) => filterExecuters(server).length > 0);
   const targets = servers.filter((server) => server !== "home" && filterExecuters(server).length == 0);
-  log.info(ns, `Targets: ${targets.toString()}`, "home");
+  log.info(ns, `Targets: ${targets.toString()}`);
   for (const target of targets) {
     while (activeExecuters.length == 0) {
       for (const pidItem of pids) {
@@ -38,10 +38,9 @@ export async function main(ns) {
     }
     if (canBeHacked(ns, target)) {
       const executer = activeExecuters.pop();
-      log.info(ns, `Will break ${target}`, executer);
       const pid = ns.run("breakServer.js", 1, executer, target);
       pids.push({ "pid": pid, "executer": executer, "active": true });
     }
   }
-  log.info(ns, 'Process End', "home");
+  log.info(ns, "Last line of targeted.js");
 }
