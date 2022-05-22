@@ -104,4 +104,4 @@ export class Queue {
   }
 }
 
-export function Lib() {};
+export function Lib() { };
