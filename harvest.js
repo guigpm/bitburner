@@ -36,7 +36,7 @@ export async function main(ns) {
       if (weakThreads) {
         execPID = ns.exec("weak.js", target, weakThreads, target);
       }
-      
+
       // If the server's security level is above our threshold, weaken it
       await ns.weaken(target);
     } else if (ns.getServerMoneyAvailable(target) < moneyThresh) {
@@ -50,7 +50,7 @@ export async function main(ns) {
       if (hackThreads) {
         execPID = ns.exec("hack.js", target, hackThreads, target);
       }
-      
+
       // Otherwise, hack it
       await ns.hack(target);
     }
