@@ -36,7 +36,7 @@ export class Log extends BaseClass {
 	 * @param {string} origin
 	 */
 	fatal(message, origin = 'application') {
-		this.nameSpace.tprintf(this.getDebugMessage(message, 'fatal', origin));
+		this.nameSpace.tprintf(this.getMessage(message, 'fatal', origin));
 		this.nameSpace.exit(1);
 	}
 
@@ -45,7 +45,7 @@ export class Log extends BaseClass {
 	 * @param {string} origin
 	 */
 	error(message, origin = 'application') {
-		this.nameSpace.tprintf(this.getDebugMessage(message, 'error', origin));
+		this.nameSpace.tprintf(this.getMessage(message, 'error', origin));
 	}
 
 	/**
@@ -54,7 +54,7 @@ export class Log extends BaseClass {
 	 */
 	warning(message, origin = 'application') {
 		if (!this.inLogLevel('warning')) return;
-		this.nameSpace.tprintf(this.getDebugMessage(message, 'warning', origin));
+		this.nameSpace.tprintf(this.getMessage(message, 'warning', origin));
 	}
 
 	/**
@@ -63,7 +63,7 @@ export class Log extends BaseClass {
 	 */
 	info(message, origin = 'application') {
 		if (!this.inLogLevel('info')) return;
-		this.nameSpace.tprintf(this.getDebugMessage(message, 'info', origin));
+		this.nameSpace.tprintf(this.getMessage(message, 'info', origin));
 	}
 
 	/**
@@ -72,7 +72,7 @@ export class Log extends BaseClass {
 	 */
 	debug(message, origin = 'application') {
 		if (!this.inLogLevel('debug')) return;
-		this.nameSpace.tprintf(this.getDebugMessage(message, 'debug', origin));
+		this.nameSpace.tprintf(this.getMessage(message, 'debug', origin));
 	}
 
 	/**
@@ -81,7 +81,7 @@ export class Log extends BaseClass {
 	 */
 	trace(message, origin = 'application') {
 		if (!this.inLogLevel('trace')) return;
-		this.nameSpace.tprintf(this.getDebugMessage(message, 'trace', origin));
+		this.nameSpace.tprintf(this.getMessage(message, 'trace', origin));
 	}
 
 	/**
@@ -89,10 +89,10 @@ export class Log extends BaseClass {
 	 * @param {string} debug
 	 * @param {string} origin
 	 */
-	getDebugMessage(message, type = 'debug', origin = 'application') {
+	getMessage(message, type = 'debug', origin = 'application') {
 		const dateNow = new Date;
 		return sprintf(
-			"[%04d-%02d-%02d %02d:%02d:%02d.%d][%s][%s] %s",
+			"[%04d-%02d-%02d %02d:%02d:%02d.%03d][%s][%s] %s",
 			dateNow.getFullYear(),
 			dateNow.getMonth(),
 			dateNow.getDate(),
@@ -110,3 +110,32 @@ export class Log extends BaseClass {
 		);
 	}
 }
+
+export const log = {
+	'logLevel': 'info',
+	'fatal' : (ns, message, origin = 'application') => {
+		const logClass = new Log(ns);
+		logClass.setLogLevel(log.logLevel);
+		logClass.fatal(message, origin);
+	},
+	'error' : (ns, message, origin = 'application') => {
+		const logClass = new Log(ns);
+		logClass.setLogLevel(log.logLevel);
+		logClass.error(message, origin);
+	},
+	'warning' : (ns, message, origin = 'application') => {
+		const logClass = new Log(ns);
+		logClass.setLogLevel(log.logLevel);
+		logClass.warning(message, origin);
+	},
+	'info' : (ns, message, origin = 'application') => {
+		const logClass = new Log(ns);
+		logClass.setLogLevel(log.logLevel);
+		logClass.info(message, origin);
+	},
+	'debug' : (ns, message, origin = 'application') => {
+		const logClass = new Log(ns);
+		logClass.setLogLevel(log.logLevel);
+		logClass.debug(message, origin);
+	}
+};
