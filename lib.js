@@ -38,7 +38,9 @@ export function enableFunctionLog(ns, fn) {
  * @param {string} hostName [optional]
  */
 export async function deploy(ns, target, hostName = undefined) {
+  log.info(ns, `Copying scripts to ${target}`, hostName ?? ns.getHostname());
   const sources = ns.ls(hostName ?? ns.getHostname(), '.js');
+  log.debug(ns, sources);
   for (const file of sources) {
     await ns.scp(file, target);
   }

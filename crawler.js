@@ -6,8 +6,11 @@ import { log, logLevel } from './log.js';
  * @param {string} target
  */
 async function spread(ns, target) {
+  log.info(ns, `Running ${ns.getScriptName()} on ${target}`, target);
+  await deploy(ns, target);
   const pid = ns.exec(ns.getScriptName(), target, 1, ns.args[0]);
   await waitTargetPid(ns, pid, target);
+  log.debug(ns, `Finished executing ${ns.getScriptName()} on ${target}`, target);
 }
 
 /**
@@ -15,8 +18,10 @@ async function spread(ns, target) {
  * @param {string} target
  */
 async function own(ns, target) {
+  log.info(ns, "Gaining Root Access", target);
   const portsRequired = ns.getServerNumPortsRequired(target);
   if (portsRequired > 2) {
+    log.debug(ns, `${target} is too hard!`, target);
     return;
   }
 
@@ -36,9 +41,11 @@ async function own(ns, target) {
     ns.nuke(target);
   }
 
-  if (ns.fileExists(ns.getScriptName(), target)) return;
+  if (ns.fileExists(ns.getScriptName(), target)) {
+    log.info(ns, "Skipping Deploy and Spread", target);
+    return;
+  }
 
-  await deploy(ns, target);
   await spread(ns, target);
 }
 
@@ -47,13 +54,14 @@ async function own(ns, target) {
  * @param {string} target
  */
 async function startHack(ns, target) {
+  log.info(ns, `Start harvest on ${target}`, target);
   const availableRam = ns.getServerMaxRam(target) - ns.getServerUsedRam(target)
   const harvestRam = ns.getScriptRam("harvest.js");
   const threads = Math.floor(availableRam / harvestRam);
   if (threads) {
     ns.exec("harvest.js", target, 1, target);
   } else {
-    ns.tprint("[ERROR]: ", target, " has no available RAM");
+    log.error(ns, `${target} has no available RAM.`, target);
   }
 }
 
@@ -62,9 +70,11 @@ async function startHack(ns, target) {
  * @param {string} target
  */
 async function killall_target(ns, target) {
+  log.info(ns, `Killing all process on ${target}`, target);
   ns.killall(target);
   await spread(ns, target);
-  ns.rm(ns.getHostname(), target);
+  ns.rm(ns.getScriptName(), target);
+  log.debug(ns, `Deleted ${ns.getScriptName()} on ${target}`, target);
 }
 
 /**
@@ -78,24 +88,17 @@ export async function main(ns) {
   }
 
   const operation = ns.args[0];
-  const adjacents = ns.scan();
-  log.debug(ns, `Operation: ${operation}`);
+  const adjacents = ns.scan().filter( adjacent => !adjacent.startsWith("home-") && adjacent != "home");
+  log.debug(ns, adjacents, ns.getHostname());
   for(var i = 0; i < adjacents.length; i++ ) {
-    const target = adjacents[i];
-    if (target.startsWith("home-") || target == "home") {
-      log.warning(ns, `Can't start to '${target}' server`);
-      continue;
-    }
-    
-    log.info(ns, "Starting...", target);
+    const target = adjacents[i];    
     await own(ns, target);
-    log.debug(ns, "own ok", target);
     if (operation.toLowerCase() == "hack") {
       await startHack(ns, target);
     } else if (operation.toLowerCase() == "killall") {
       await killall_target(ns, target);
     } else if (operation.toLowerCase() == "deploy") {
-      continue;
+      await spread(ns, target);
     } else {
 
     }
