@@ -35,7 +35,7 @@ export class Log extends BaseClass {
    * @param {string} level
    */
   inLogLevel(level) {
-    return this.logLevels.indexOf(level) >= this.logLevels.indexOf(this.actualLogLevel);
+    return this.logLevels.indexOf(level) <= this.logLevels.indexOf(this.actualLogLevel);
   }
 
   /**
