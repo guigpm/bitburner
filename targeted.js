@@ -26,13 +26,12 @@ export async function main(ns) {
   activeExecuters = servers.filter((server) => filterExecuters(server).length > 0);
   const targets = servers.filter((server) => server !== "home" && filterExecuters(server).length == 0);
   log.info(ns, `Targets: ${targets.toString()}`, "home");
-  for (var i = 0; i < targets.length; i++) {
-    const target = targets[i];
+  for (const target of targets) {
     while(activeExecuters.length == 0) {
-      for (var j = 0; j < pids.length; j++) {
-        if (pids[j].active && !ns.isRunning(pids[j].pid)) {
-          activeExecuters.push(pids[j].executer);
-          pids[j].active = false;
+      for (const pidItem of pids) {
+        if (pidItem.active && !ns.isRunning(pidItem.pid)) {
+          activeExecuters.push(pidItem.executer);
+          pidItem.active = false;
         }
       }
       await ns.sleep(1000);
