@@ -99,7 +99,7 @@ export class Log extends BaseClass {
   getMessage(message, type = 'debug', origin = 'application') {
     const dateNow = new Date;
     return sprintf(
-      "[%04d-%02d-%02d %02d:%02d:%02d.%03d][%s][%s] %s",
+      "[%04d-%02d-%02d %02d:%02d:%02d.%03d][%s][%s][%s] %s",
       dateNow.getFullYear(),
       dateNow.getMonth(),
       dateNow.getDate(),
@@ -108,6 +108,8 @@ export class Log extends BaseClass {
       dateNow.getMinutes(),
       dateNow.getSeconds(),
       dateNow.getMilliseconds(),
+
+      this.nameSpace.getScriptName(),
 
       origin,
 
