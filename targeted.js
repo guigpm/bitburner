@@ -27,7 +27,7 @@ export async function main(ns) {
   const targets = servers.filter((server) => server !== "home" && filterExecuters(server).length == 0);
   log.info(ns, `Targets: ${targets.toString()}`, "home");
   for (const target of targets) {
-    while(activeExecuters.length == 0) {
+    while (activeExecuters.length == 0) {
       for (const pidItem of pids) {
         if (pidItem.active && !ns.isRunning(pidItem.pid)) {
           activeExecuters.push(pidItem.executer);
@@ -40,7 +40,7 @@ export async function main(ns) {
       const executer = activeExecuters.pop();
       log.info(ns, `Will break ${target}`, executer);
       const pid = ns.run("breakServer.js", 1, executer, target);
-      pids.push({"pid": pid, "executer": executer, "active": true});
+      pids.push({ "pid": pid, "executer": executer, "active": true });
     }
   }
   log.info(ns, 'Process End', "home");

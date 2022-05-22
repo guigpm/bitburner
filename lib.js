@@ -72,6 +72,42 @@ export function canBeHacked(ns, target, scriptRunningName = 'harvest.js') {
   return !alreadyRunning && moneyAvailable && rootAccess && hackLevel;
 }
 
+/**
+ * 
+ * @param {import("./NameSpace").NS} ns 
+ * @param {int} maxDistance [optional]
+ * @returns 
+ */
+export async function serversWithinDistance(ns, maxDistance = undefined) {
+  if (maxDistance == undefined) {
+    if (ns.fileExists("DeepscanV2.exe")) {
+      maxDistance = 10;
+    } else if (ns.fileExists("DeepscanV1.exe")) {
+      maxDistance = 5;
+    } else {
+      maxDistance = 3;
+    }
+  }
+  const visited = [];
+  const queue = new Queue();
+  queue.enqueue({ "name": "home", "distance": 1 })
+
+  while (!queue.isEmpty) {
+    const current = queue.dequeue();
+    visited.push(current.name);
+
+    const adjacents = ns.scan(current.name);
+    if (current.distance <= maxDistance) {
+      for (const adjacent of adjacents) {
+        if (!visited.includes(adjacent)) {
+          queue.enqueue({ "name": adjacent, "distance": current.distance + 1 });
+        }
+      }
+    }
+  }
+  return visited
+}
+
 export class Queue {
   constructor() {
     this.elements = {};
