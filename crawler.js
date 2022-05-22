@@ -6,8 +6,8 @@ import { log, logLevel } from './log.js';
  * @param {string} target
  */
 async function spread(ns, target) {
-  // if (ns.isRunning(ns.getScriptName(), target, ns.args[0])) {
-  if (ns.fileExists("crawler_exec.txt", target)) {
+  if (ns.isRunning(ns.getScriptName(), target, ns.args[0])) {
+    // if (ns.fileExists("crawler_exec.txt", target)) {
     log.info(ns, `Skipping Spread on ${target}`);
     return;
   }
@@ -77,7 +77,6 @@ export async function main(ns) {
 
   const operation = ns.args[0];
   const adjacents = ns.scan().filter(adjacent => !adjacent.startsWith("home-") && adjacent != "home");
-  await ns.write("crawler_exec.txt");
   log.debug(ns, adjacents);
   for (var i = 0; i < adjacents.length; i++) {
     const target = adjacents[i];
@@ -95,6 +94,5 @@ export async function main(ns) {
 
     }
   }
-  ns.rm("crawler_exec.txt");
   log.debug(ns, `Last line of ${ns.getScriptName()}`);
 }
