@@ -38,6 +38,11 @@ export function enableFunctionLog(ns, fn) {
  * @param {string} hostName [optional]
  */
 export async function deploy(ns, target, hostName = undefined) {
+  log.info(ns, `Deleting old scripts from ${target}`, hostName ?? ns.getHostname());
+  const targetSources = ns.ls(target, '.js');
+  for (const file of targetSources) {
+    ns.rm(file, target);
+  }
   log.info(ns, `Copying scripts to ${target}`, hostName ?? ns.getHostname());
   const sources = ns.ls(hostName ?? ns.getHostname(), '.js');
   log.debug(ns, sources);
