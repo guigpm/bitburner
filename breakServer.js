@@ -19,7 +19,7 @@ export async function main(ns) {
   const harvestThreads = 1;
 
   let pid = 0;
-  log.info(ns, `Breaking server ${target}`);
+  log.info(ns, `Breaking server ${target} on ${executer}`);
   while (true) {
     if (ns.getServerSecurityLevel(target) > securityThresh) {
       log.debug(ns, "Weak " + target)

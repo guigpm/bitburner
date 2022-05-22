@@ -27,7 +27,6 @@ export async function main(ns) {
   ns.tprint(activeExecuters);
   ns.tprint(targets);
 
-
   log.info(ns, `Targets: ${targets.toString()}`);
   for (const target of targets) {
     if (canBeHacked(ns, target)) {
