@@ -7,11 +7,11 @@ export async function main(ns) {
   let executerServerNames = ["home-"];
   let unstopableExecution = false;
   if (ns.args.length > 0) {
-    const firstElemewnt = ns.args.shift();
-    log.trace(ns, `firstElemewnt: ${firstElemewnt}`);
-    unstopableExecution = `${firstElemewnt}`.toLocaleLowerCase() === 'unstopableexecution';
+    const firstElement = ns.args.shift();
+    log.trace(ns, `firstElement: ${firstElement}`);
+    unstopableExecution = `${firstElement}`.toLocaleLowerCase() === 'forever';
     if (!unstopableExecution) {
-      ns.args.push(firstElemewnt);
+      ns.args.push(firstElement);
     }
     if (ns.args.length) {
       executerServerNames = ns.args;
@@ -28,7 +28,7 @@ export async function main(ns) {
     return executerServerNames.filter((executer) => server.startsWith(executer));
   }
 
-  while (unstopableExecution) {
+  do {
     const servers = serversWithinDistance(ns, 10);
     const activeExecuters = servers.filter((server) => filterExecuters(server).length > 0);
     const targets = servers.filter((server) => server !== "home" && filterExecuters(server).length == 0);
@@ -42,7 +42,7 @@ export async function main(ns) {
         await breakServer(ns, target, activeExecuters);
       }
     }
-  }
+  } while (unstopableExecution);
   log.info(ns, "Last line of " + ns.getScriptName());
 }
 

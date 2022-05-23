@@ -1,12 +1,12 @@
 import { BaseClass } from './baseClass.js';
 
 export const logLevel = {
-  'fatal':'fatal',
-  'error':'error',
-  'warning':'warning',
-  'info':'info',
-  'debug':'debug',
-  'trace':'trace',
+  'fatal': 'fatal',
+  'error': 'error',
+  'warning': 'warning',
+  'info': 'info',
+  'debug': 'debug',
+  'trace': 'trace',
 };
 
 export class Log extends BaseClass {
@@ -143,7 +143,7 @@ export const log = {
    * @param {string} message
    * @param {string} origin
    */
-  'fatal' : (ns, message, origin = undefined) => {
+  'fatal': (ns, message, origin = undefined) => {
     log.log(ns, message, logLevel.fatal, origin ?? ns.getHostname());
   },
 
@@ -153,7 +153,7 @@ export const log = {
    * @param {string} message
    * @param {string} origin
    */
-  'error' : (ns, message, origin = undefined) => {
+  'error': (ns, message, origin = undefined) => {
     log.log(ns, message, logLevel.error, origin ?? ns.getHostname());
   },
 
@@ -163,7 +163,7 @@ export const log = {
    * @param {string} message
    * @param {string} origin
    */
-  'warning' : (ns, message, origin = undefined) => {
+  'warning': (ns, message, origin = undefined) => {
     log.log(ns, message, logLevel.warning, origin ?? ns.getHostname());
   },
 
@@ -173,7 +173,7 @@ export const log = {
    * @param {string} message
    * @param {string} origin
    */
-  'info' : (ns, message, origin = undefined) => {
+  'info': (ns, message, origin = undefined) => {
     log.log(ns, message, logLevel.info, origin ?? ns.getHostname());
   },
 
@@ -183,7 +183,7 @@ export const log = {
    * @param {string} message
    * @param {string} origin
    */
-  'debug' : (ns, message, origin = undefined) => {
+  'debug': (ns, message, origin = undefined) => {
     log.log(ns, message, logLevel.debug, origin ?? ns.getHostname());
   },
 
@@ -193,7 +193,7 @@ export const log = {
    * @param {string} message
    * @param {string} origin
    */
-  'trace' : (ns, message, origin = undefined) => {
+  'trace': (ns, message, origin = undefined) => {
     log.log(ns, message, logLevel.trace, origin ?? ns.getHostname());
   }
 };

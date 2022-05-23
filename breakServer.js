@@ -6,7 +6,9 @@ export async function main(ns) {
   ns.disableLog("sleep");
   const executer = ns.args[0];
   const target = ns.args[1];
-  await deploy(ns, executer);
+  if (executer != "home") {
+    await deploy(ns, executer);
+  }
   await deploy(ns, target);
 
   const weakThreads = getMaxThreadsFromScript(ns, executer, "weak.js");

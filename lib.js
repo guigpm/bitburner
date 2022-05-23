@@ -250,7 +250,7 @@ export function getAvailableRam(ns, target) {
  * 
  * @param {import("./NameSpace").NS} ns
  * @param {string} target Defines the "target server"
- * @param {int} ramUsage [optional] value in GB
+ * @param {number} ramUsage [optional] value in GB
  * @returns {number}
  */
 export function getMaxThreads(ns, target, ramUsage = 0) {
