@@ -1,4 +1,4 @@
-import { deploy, getMaxThreadsFromScript, getMoneyThreshold, getSecurityThreshold, growCondition, weakenCondition } from './lib.js';
+import { deploy, getMaxThreadsFromScript, growCondition, weakenCondition } from './lib.js';
 import { log } from './log.js';
 
 /** @param {import("./NameSpace").NS} nameSpace */
@@ -9,25 +9,39 @@ export async function main(ns) {
   await deploy(ns, executer);
   await deploy(ns, target);
 
-  const weakThreads = getMaxThreadsFromScript(ns, target, "weak.js");
-  const growThreads = getMaxThreadsFromScript(ns, target, "grow.js");
+  const weakThreads = getMaxThreadsFromScript(ns, executer, "weak.js");
+  const growThreads = getMaxThreadsFromScript(ns, executer, "grow.js");
   const harvestThreads = 1;
 
   let pid = 0;
   log.info(ns, `Breaking server ${target} on ${executer}`);
   while (true) {
     if (weakenCondition(ns, target)) {
-      log.debug(ns, "Weak " + target)
-      pid = ns.exec("weak.js", executer, weakThreads, target);
+      log.debug(ns, "Weak " + target);
+      if (weakThreads) {
+        pid = ns.exec("weak.js", executer, weakThreads, target);
+      } else {
+        log.error(ns, `Can't weak on ${executer}. Probably no RAM.`);
+        break;
+      }
     } else if (growCondition(ns, target)) {
-      log.debug(ns, "Grow " + target)
-      pid = ns.exec("grow.js", executer, growThreads, target);
+      log.debug(ns, "Grow " + target);
+      if (growThreads) {
+        pid = ns.exec("grow.js", executer, growThreads, target);
+      } else {
+        log.error(ns, `Can't grow on ${executer}. Probably no RAM.`);
+        break;
+      }
     } else {
-      log.debug(ns, "Harvest " + target)
-      pid = ns.exec("harvest.js", target, harvestThreads, target);
+      log.debug(ns, "Harvest " + target);
+      if (harvestThreads) {
+        pid = ns.exec("harvest.js", target, harvestThreads, target);
+      } else {
+        log.error(ns, `Can't harvest on ${target}. Probably no RAM.`);
+      }
       break;
     }
-    while (ns.isRunning(pid, executer)) {
+    while (pid && ns.isRunning(pid, executer)) {
       await ns.sleep(500);
     }
   }

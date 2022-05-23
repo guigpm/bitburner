@@ -57,10 +57,11 @@ export async function deploy(ns, target, hostName = undefined) {
  * 
  * @param {import("./NameSpace").NS} ns
  * @param {string} target Defines the "target server"
- * @param {string} scriptRunningName [optional]
+ * @param {script} scriptRunning [optional]
+ * @param {boolean} validateRunning [optional]
  */
-export function canBeHacked(ns, target, scriptRunningName = 'harvest.js') {
-  const alreadyRunning = ns.isRunning(scriptRunningName, target, target);
+export function canBeHacked(ns, target, scriptRunning = 'harvest.js', validateRunning = true) {
+  const alreadyRunning = validateRunning && ns.isRunning(scriptRunning, target, target);
   const moneyAvailable = ns.getServerMoneyAvailable(target) > 0;
   const rootAccess = ns.hasRootAccess(target);
   const hackLevel = ns.getServerRequiredHackingLevel(target) <= ns.getHackingLevel();

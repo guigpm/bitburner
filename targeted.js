@@ -41,5 +41,5 @@ export async function main(ns) {
       pids.push({ "pid": pid, "executer": executer, "active": true });
     }
   }
-  log.info(ns, "Last line of targeted.js");
+  log.info(ns, "Last line of " + ns.getScriptName());
 }

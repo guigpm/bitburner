@@ -1,4 +1,4 @@
-import { getMaxThreads, getMoneyThreshold, getSecurityThreshold, growCondition, waitTargetPid, weakenCondition } from './lib.js';
+import { getMaxThreads, growCondition, waitTargetPid, weakenCondition } from './lib.js';
 import { log } from './log.js';
 
 /** @param {import("./NameSpace").NS} ns */
