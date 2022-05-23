@@ -26,8 +26,24 @@ function buildAction(ns, cost, action, log) {
     }
 }
 
+function parseInputMoney(text) {
+    let multiplier = 1;
+    if (text.endsWith("k")) {
+        multiplier = 1000;
+    } else if (text.endsWith("m")) {
+        multiplier = 1000000;
+    } else if (text.endsWith("b")) {
+        multiplier = 1000000000;
+    }
+    if (Number.isInteger(text[text.length - 1])) {
+        return text * multiplier;
+    }
+    return text.substring(0, text.length - 1) * multiplier;
+}
+
 /** @param {import("./NameSpace").NS} ns */
 export async function main(ns) {
+    const minMoney = ns.args.length == 0 ? 0 : parseInputMoney(ns.args[0]);
     disableFunctionLog(ns, "sleep");
     while (true) {
         const actions = [];
@@ -42,9 +58,14 @@ export async function main(ns) {
         const bestAction = actions.reduce((accumlator, action) => compareCost(accumlator, action), null);
         if (bestAction === null) log.fatal(ns, "No actions to take in hacknet");
         if (bestAction.cost === Infinity) break;
-        bestAction.action();
-        log.info(ns, bestAction.log);
-        await ns.sleep(500);
+        while (ns.getServerMoneyAvailable("home") <= minMoney + bestAction.cost) {
+            await ns.sleep(5000);
+        }
+        const success = bestAction.action();
+        if (success) {
+            log.info(ns, bestAction.log);
+            await ns.sleep(1000);
+        }
     }
     log.info(ns, "All hacknet nodes are maxxed out");
 }
