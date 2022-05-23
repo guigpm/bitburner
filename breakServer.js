@@ -1,4 +1,4 @@
-import { deploy } from './lib.js';
+import { deploy, getMaxThreadsFromScript, getMoneyThreshold, getSecurityThreshold, growCondition, weakenCondition } from './lib.js';
 import { log } from './log.js';
 
 /** @param {import("./NameSpace").NS} nameSpace */
@@ -9,22 +9,17 @@ export async function main(ns) {
   await deploy(ns, executer);
   await deploy(ns, target);
 
-  var moneyThresh = ns.getServerMaxMoney(target) * 0.75;
-  var securityThresh = ns.getServerMinSecurityLevel(target) + 5;
-
-  const availableRam = ns.getServerMaxRam(executer) - ns.getServerUsedRam(executer);
-  const availableRamTarget = ns.getServerMaxRam(target) - ns.getServerUsedRam(target);
-  const weakThreads = Math.floor(availableRam / ns.getScriptRam("weak.js"));
-  const growThreads = Math.floor(availableRam / ns.getScriptRam("grow.js"));
+  const weakThreads = getMaxThreadsFromScript(ns, target, "weak.js");
+  const growThreads = getMaxThreadsFromScript(ns, target, "grow.js");
   const harvestThreads = 1;
 
   let pid = 0;
   log.info(ns, `Breaking server ${target} on ${executer}`);
   while (true) {
-    if (ns.getServerSecurityLevel(target) > securityThresh) {
+    if (weakenCondition(ns, target)) {
       log.debug(ns, "Weak " + target)
       pid = ns.exec("weak.js", executer, weakThreads, target);
-    } else if (ns.getServerMoneyAvailable(target) < moneyThresh) {
+    } else if (growCondition(ns, target)) {
       log.debug(ns, "Grow " + target)
       pid = ns.exec("grow.js", executer, growThreads, target);
     } else {

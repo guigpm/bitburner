@@ -1,4 +1,4 @@
-import { waitTargetPid } from './lib.js';
+import { getMaxThreads, getMoneyThreshold, getSecurityThreshold, growCondition, waitTargetPid, weakenCondition } from './lib.js';
 import { log } from './log.js';
 
 /** @param {import("./NameSpace").NS} ns */
@@ -8,38 +8,24 @@ export async function main(ns) {
     ns.tprint("Missing argument 0: <target>")
     ns.exit(1)
   }
-  // Defines the "target server", which is the server
-  // that we're going to hack. In this case, it's "n00dles"
+
   var target = ns.args[0];
 
-  // Defines how much money a server should have before we hack it
-  // In this case, it is set to 75% of the server's max money
-  var moneyThresh = ns.getServerMaxMoney(target) * 0.75;
-
-  // Defines the maximum security level the target server can
-  // have. If the target's security level is higher than this,
-  // we'll weaken it before doing anything else
-  var securityThresh = ns.getServerMinSecurityLevel(target) + 5;
-
-
-  const availableRam = ns.getServerMaxRam(target) - ns.getServerUsedRam(target);
-  const weakThreads = Math.floor(availableRam / ns.getScriptRam("weak.js"));
-  const growThreads = Math.floor(availableRam / ns.getScriptRam("grow.js"));
-  const hackThreads = Math.floor(availableRam / ns.getScriptRam("hack.js"));
-  // const threads = Math.floor(availableRam / harvestRam);
-
+  const weakThreads = getMaxThreads(ns, target, 1.75);
+  const growThreads = getMaxThreads(ns, target, 1.75);
+  const hackThreads = getMaxThreads(ns, target, 1.7);
 
   // Infinite loop that continously hacks/grows/weakens the target server
   while (true) {
     let execPID = null;
-    if (ns.getServerSecurityLevel(target) > securityThresh) {
+    if (weakenCondition(ns, target)) {
       if (weakThreads) {
         execPID = ns.exec("weak.js", target, weakThreads, target);
       }
 
       // If the server's security level is above our threshold, weaken it
       await ns.weaken(target);
-    } else if (ns.getServerMoneyAvailable(target) < moneyThresh) {
+    } else if (growCondition(ns, target)) {
       if (growThreads) {
         execPID = ns.exec("grow.js", target, growThreads, target);
       }
