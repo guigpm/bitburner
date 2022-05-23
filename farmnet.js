@@ -41,8 +41,10 @@ export async function main(ns) {
         }
         const bestAction = actions.reduce((accumlator, action) => compareCost(accumlator, action), null);
         if (bestAction === null) log.fatal(ns, "No actions to take in hacknet");
+        if (bestAction.cost === Infinity) break;
         bestAction.action();
         log.info(ns, bestAction.log);
         await ns.sleep(500);
     }
+    log.info(ns, "All hacknet nodes are maxxed out");
 }
