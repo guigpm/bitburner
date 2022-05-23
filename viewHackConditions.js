@@ -6,8 +6,8 @@ let activeExecuters = [];
 /** @param {import("./NameSpace").NS} ns */
 export async function main(ns) {
   if (ns.args.length < 1) {
-      log.fatal(ns, "Usage: target [logLevel] [from]");
-      ns.exit(1);
+    log.fatal(ns, "Usage: target [logLevel] [from]");
+    ns.exit(1);
   }
   const target = ns.args[0];
   log.logLevel = ns.args[1] ?? logLevel.trace;
@@ -25,7 +25,7 @@ export async function main(ns) {
   log.trace(ns, serverFrom + 'Max Server Money: ' + ns.nFormat(moneyMax, '$0.00a'), target);
   log.trace(ns, serverFrom + 'Current Server Money: ' + ns.nFormat(moneyCurrent, '$0.00a'), target);
   log.trace(ns, serverFrom + 'Money Threshold (0.75 * Max Server Money): ' + ns.nFormat(moneyThresh, '$0.00a'), target);
-  log.trace(ns, serverFrom + 'Condition to <grow> (Current Server Money < Money Threshold): ' +  ((moneyCurrent < moneyThresh) ? 'True' : 'False'), target);
+  log.trace(ns, serverFrom + 'Condition to <grow> (Current Server Money < Money Threshold): ' + ((moneyCurrent < moneyThresh) ? 'True' : 'False'), target);
 
   const securityCurrent = ns.getServerSecurityLevel(target);
   const securityMin = ns.getServerMinSecurityLevel(target);
@@ -34,7 +34,7 @@ export async function main(ns) {
   log.trace(ns, serverFrom + 'Min Server Security: ' + securityMin, target);
   log.trace(ns, serverFrom + 'Current Server Security: ' + securityCurrent, target);
   log.trace(ns, serverFrom + 'Security Threshold (Min Server Security + 5): ' + securityThresh, target);
-  log.trace(ns, serverFrom + 'Condition to <weak> (Current Server Security > Security Threshold): ' +  ((securityCurrent > securityThresh) ? 'True' : 'False'), target);
+  log.trace(ns, serverFrom + 'Condition to <weak> (Current Server Security > Security Threshold): ' + ((securityCurrent > securityThresh) ? 'True' : 'False'), target);
   log.trace(ns, serverFrom + '---------', target);
 
 }
