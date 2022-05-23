@@ -3,33 +3,40 @@ import { log, logLevel } from './log.js';
 
 /** @param {import("./NameSpace").NS} ns */
 export async function main(ns) {
-
+  log.logLevel = logLevel.debug;
   let executerServerNames = ["home-"];
+  let unstopableExecution = false;
   if (ns.args.length > 0) {
-    executerServerNames = ns.args;
+    const firstElemewnt = ns.args.shift();
+    log.trace(ns, `firstElemewnt: ${firstElemewnt}`);
+    unstopableExecution = `${firstElemewnt}`.toLocaleLowerCase() === 'unstopableexecution';
+    if (!unstopableExecution) {
+      ns.args.push(firstElemewnt);
+    }
+    if (ns.args.length) {
+      executerServerNames = ns.args;
+    }
   }
 
-  const unstopableExecution = true;
+  log.trace(ns, `unstopableExecution: ${unstopableExecution}`);
+  log.trace(ns, `executerServerNames: ${executerServerNames}`);
 
   disableFunctionLog(ns, "sleep");
-
-  log.logLevel = logLevel.debug;
-
-  const servers = serversWithinDistance(ns, 10);
 
   /** @param {string} server */
   const filterExecuters = (server) => {
     return executerServerNames.filter((executer) => server.startsWith(executer));
   }
 
-  const activeExecuters = servers.filter((server) => filterExecuters(server).length > 0);
-  const targets = servers.filter((server) => server !== "home" && filterExecuters(server).length == 0);
-
-  // ns.tprint(activeExecuters);
-  // ns.tprint(targets);
-
-  log.info(ns, `Targets: ${targets.toString()}`);
   while (unstopableExecution) {
+    const servers = serversWithinDistance(ns, 10);
+    const activeExecuters = servers.filter((server) => filterExecuters(server).length > 0);
+    const targets = servers.filter((server) => server !== "home" && filterExecuters(server).length == 0);
+
+    // ns.tprint(activeExecuters);
+    // ns.tprint(targets);
+
+    log.info(ns, `Targets: ${targets.toString()}`);
     for (const target of targets) {
       if (canBeHacked(ns, target, 'harvest.js', !unstopableExecution)) {
         await breakServer(ns, target, activeExecuters);
