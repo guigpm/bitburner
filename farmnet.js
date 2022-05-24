@@ -1,5 +1,5 @@
 import { log } from "./log.js";
-import { disableFunctionLog } from "./lib.js";
+import { disableFunctionLog, formatMoney } from "./lib.js";
 
 function partial(fn, ...fnArgs) {
     return () => {
@@ -12,10 +12,6 @@ function compareCost(a1, a2) {
     if (a2 === null) return a1;
     if (a1.cost <= a2.cost) return a1;
     return a2;
-}
-/** @param {import("./NameSpace").NS} ns */
-function formatMoney(ns, value) {
-    return ns.nFormat(value, '$0.00a');
 }
 
 function buildAction(ns, cost, action, log) {

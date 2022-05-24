@@ -275,4 +275,13 @@ export function getMaxThreadsFromScript(ns, target, script) {
   return getMaxThreads(ns, target, scriptRam);
 }
 
+/** 
+ * @param {import("./NameSpace").NS} ns  
+ * @param {number} value 
+ * @returns {string}
+ */
+export function formatMoney(ns, value) {
+  return ns.nFormat(value, '$0.000a');
+}
+
 export function Lib() { };
