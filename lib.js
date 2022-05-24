@@ -222,14 +222,15 @@ export function weakenCondition(ns, target) {
 
 /**
  * 
- * @remarks RAM cost 0.2 GB
+ * @remarks RAM cost 0.3 GB
  * 
  * @param {import("./NameSpace").NS} ns
  * @param {string} target Defines the "target server"
  * @returns {boolean}
  */
 export function growCondition(ns, target) {
-  return ns.getServerMoneyAvailable(target) < getMoneyThreshold(ns, target);
+  return ns.getServerMoneyAvailable(target) < getMoneyThreshold(ns, target)
+    && ns.getServerGrowth(target) > 0;
 }
 
 /**
