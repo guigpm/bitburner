@@ -1,45 +1,62 @@
-import { canBeHacked, disableFunctionLog, serversWithinDistance } from './lib.js';
+import { canBeHacked, disableFunctionLog, serversWithinDistance, waitTargetPid } from './lib.js';
 import { log, logLevel } from './log.js';
-
 
 /** @param {import("./NameSpace").NS} ns */
 export async function main(ns) {
-
+  log.logLevel = logLevel.debug;
   let executerServerNames = ["home-"];
+  let unstopableExecution = false;
   if (ns.args.length > 0) {
-    executerServerNames = ns.args;
+    const firstElement = ns.args.shift();
+    log.trace(ns, `firstElement: ${firstElement}`);
+    unstopableExecution = `${firstElement}`.toLocaleLowerCase() === 'forever';
+    if (!unstopableExecution) {
+      ns.args.push(firstElement);
+    }
+    if (ns.args.length) {
+      executerServerNames = ns.args;
+    }
   }
 
+  log.trace(ns, `unstopableExecution: ${unstopableExecution}`);
+  log.trace(ns, `executerServerNames: ${executerServerNames}`);
+
   disableFunctionLog(ns, "sleep");
-
-  log.logLevel = logLevel.debug;
-
-  const servers = serversWithinDistance(ns, 10);
-  let pids = [];
 
   /** @param {string} server */
   const filterExecuters = (server) => {
     return executerServerNames.filter((executer) => server.startsWith(executer));
   }
 
-  const activeExecuters = servers.filter((server) => filterExecuters(server).length > 0);
-  const targets = servers.filter((server) => server !== "home" && filterExecuters(server).length == 0);
-  log.info(ns, `Targets: ${targets.toString()}`);
-  for (const target of targets) {
-    while (activeExecuters.length == 0) {
-      for (const pidItem of pids) {
-        if (pidItem.active && !ns.isRunning(pidItem.pid)) {
-          activeExecuters.push(pidItem.executer);
-          pidItem.active = false;
-        }
+  do {
+    const servers = serversWithinDistance(ns, 10);
+    const targets = servers.filter((server) => server !== "home" && filterExecuters(server).length == 0);
+
+    log.info(ns, `Targets: ${targets.toString()}`);
+    for (const target of targets) {
+      const activeExecuters = serversWithinDistance(ns, 1).filter((server) => filterExecuters(server).length > 0);
+      if (canBeHacked(ns, target, 'harvest.js', !unstopableExecution)) {
+        await breakServer(ns, target, activeExecuters);
       }
-      await ns.sleep(1000);
     }
-    if (canBeHacked(ns, target)) {
-      const executer = activeExecuters.pop();
-      const pid = ns.run("breakServer.js", 1, executer, target);
-      pids.push({ "pid": pid, "executer": executer, "active": true });
-    }
-  }
+  } while (unstopableExecution);
   log.info(ns, "Last line of " + ns.getScriptName());
+}
+
+/**
+ * @param {import("./NameSpace").NS} ns 
+ * @param {string} target Defines the "target server"
+ * @param {string[]} executers List of servers name to execute action to break target server
+ */
+async function breakServer(ns, target, executers) {
+  const pids = [];
+  for (const executer of executers) {
+    const pid = ns.run("breakServer.js", 1, executer, target);
+    pids.push({ "pid": pid, "executer": executer });
+  }
+
+  while (pids.length) {
+    const pid = pids.pop();
+    await waitTargetPid(ns, pid.pid, pid.executer);
+  }
 }
