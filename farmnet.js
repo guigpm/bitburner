@@ -60,7 +60,7 @@ export async function main(ns) {
         const success = bestAction.action();
         if (success) {
             log.info(ns, bestAction.log);
-            await ns.sleep(1000);
+            await ns.sleep(10);
         }
     }
     log.info(ns, "All hacknet nodes are maxxed out");
