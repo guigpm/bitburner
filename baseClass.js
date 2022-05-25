@@ -1,9 +1,9 @@
 export class BaseClass {
-  /** @type {import("./NameSpace").NS} nameSpace */
-  nameSpace = null;
+  /** @type {import("./NameSpace").NS} ns */
+  ns = null;
 
-  /** @param {import("./NameSpace").NS} nameSpace */
-  constructor(nameSpace) {
-    this.nameSpace = nameSpace;
+  /** @param {import("./NameSpace").NS} ns */
+  constructor(ns) {
+    this.ns = ns;
   }
 }

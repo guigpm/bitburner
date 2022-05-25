@@ -42,53 +42,53 @@ export class Log extends BaseClass {
    * @param {string} message
    * @param {string} origin
    */
-  fatal(message, origin = this.nameSpace.getHostname()) {
-    this.nameSpace.tprintf(this.getMessage(message, 'fatal', origin));
-    this.nameSpace.exit(1);
+  fatal(message, origin = this.ns.getHostname()) {
+    this.ns.tprintf(this.getMessage(message, 'fatal', origin));
+    this.ns.exit(1);
   }
 
   /**
    * @param {string} message
    * @param {string} origin
    */
-  error(message, origin = this.nameSpace.getHostname()) {
-    this.nameSpace.tprintf(this.getMessage(message, 'error', origin));
+  error(message, origin = this.ns.getHostname()) {
+    this.ns.tprintf(this.getMessage(message, 'error', origin));
   }
 
   /**
    * @param {string} message
    * @param {string} origin
    */
-  warning(message, origin = this.nameSpace.getHostname()) {
+  warning(message, origin = this.ns.getHostname()) {
     if (!this.inLogLevel('warning')) return;
-    this.nameSpace.tprintf(this.getMessage(message, 'warning', origin));
+    this.ns.tprintf(this.getMessage(message, 'warning', origin));
   }
 
   /**
    * @param {string} message
    * @param {string} origin
    */
-  info(message, origin = this.nameSpace.getHostname()) {
+  info(message, origin = this.ns.getHostname()) {
     if (!this.inLogLevel('info')) return;
-    this.nameSpace.tprintf(this.getMessage(message, 'info', origin));
+    this.ns.tprintf(this.getMessage(message, 'info', origin));
   }
 
   /**
    * @param {string} message
    * @param {string} origin
    */
-  debug(message, origin = this.nameSpace.getHostname()) {
+  debug(message, origin = this.ns.getHostname()) {
     if (!this.inLogLevel('debug')) return;
-    this.nameSpace.tprintf(this.getMessage(message, 'debug', origin));
+    this.ns.tprintf(this.getMessage(message, 'debug', origin));
   }
 
   /**
    * @param {string} message
    * @param {string} origin
    */
-  trace(message, origin = this.nameSpace.getHostname()) {
+  trace(message, origin = this.ns.getHostname()) {
     if (!this.inLogLevel('trace')) return;
-    this.nameSpace.tprintf(this.getMessage(message, 'trace', origin));
+    this.ns.tprintf(this.getMessage(message, 'trace', origin));
   }
 
   /**
@@ -96,7 +96,7 @@ export class Log extends BaseClass {
    * @param {string} debug
    * @param {string} origin
    */
-  getMessage(message, type = 'debug', origin = this.nameSpace.getHostname()) {
+  getMessage(message, type = 'debug', origin = this.ns.getHostname()) {
     const dateNow = new Date;
     return sprintf(
       "[%04d-%02d-%02d %02d:%02d:%02d.%03d][%s][%s][%s] %s",
@@ -109,7 +109,7 @@ export class Log extends BaseClass {
       dateNow.getSeconds(),
       dateNow.getMilliseconds(),
 
-      this.nameSpace.getScriptName(),
+      this.ns.getScriptName(),
 
       origin,
 
