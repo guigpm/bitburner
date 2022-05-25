@@ -263,6 +263,22 @@ export function getMaxThreads(ns, target, ramUsage = 0) {
 
 /**
  * 
+ * @remarks RAM cost 0.1 GB
+ * 
+ * @param {import("./NameSpace").NS} ns
+ * @param {number} availableRam Available RAM in GB
+ * @param {number} ramUsage [optional] value in GB
+ * @returns {number}
+ */
+export function getThreadsByRam(availableRam, ramUsage = 0) {
+  if (ramUsage == 0) {
+    ramUsage = 1;
+  }
+  return Math.floor(availableRam / ramUsage);
+}
+
+/**
+ * 
  * @remarks RAM cost 0.2 GB
  * 
  * @param {import("./NameSpace").NS} ns
