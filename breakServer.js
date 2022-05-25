@@ -22,7 +22,7 @@ export async function main(ns) {
     log.info(ns, `Already running 'harvest.js' on ${target}.`);
   } else if (harvestThreads) {
     pid = ns.exec("harvest.js", target, 1 /* Thread */, target);
-    log.trace(`Started 'harvest.js' on ${target} with PID=<${pid ?? 'NULL'}>.`)
+    log.trace(ns, `Started 'harvest.js' on ${target} with PID=<${pid ?? 'NULL'}>.`)
   } else {
     log.error(ns, `Can't start 'harvest.js' on ${target}. Probably no RAM.`);
   }
