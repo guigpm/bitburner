@@ -10,14 +10,22 @@ export async function main(ns) {
         ns.exit(1);
     }
 
-    const target = ns.args[0];
-    await ns.prompt(`Are you sure to delete '${target}' server?`).then((reponse) => {
-        if (reponse) {
-            ns.deleteServer(target);
-            ns.alert(`Server '${target}' deleted.`);
-            log.debug(ns, `Server '${target}' deleted.`);
-        } else {
-            log.debug(ns, `Cancel server '${target}' delete.`);
-        }
-    });
+    const prefix = ns.args[0];
+    const targets = ns.scan().filter(server => server.startsWith(prefix) && server != "home");
+    for (const target of targets) {
+        await ns.prompt(`Are you sure to delete '${target}' server?`).then((reponse) => {
+            if (reponse) {
+                const deleted = ns.deleteServer(target);
+                if (deleted) {
+                    ns.alert(`Server '${target}' deleted.`);
+                    log.debug(ns, `Server '${target}' deleted.`);
+                }
+                else {
+                    log.debug(ns, `Server ${target} was NOT deleted. Probably running a script.`);
+                }
+            } else {
+                log.debug(ns, `Cancel server '${target}' delete.`);
+            }
+        });
+    }
 }

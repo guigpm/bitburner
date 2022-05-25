@@ -6,13 +6,14 @@ import { log, logLevel } from "./log";
  */
 export async function main(ns) {
     log.logLevel = logLevel.debug;
-    if (ns.args.length != 2) {
-        log.fatal(ns, "Usage: <HostName> <RAM in GB|Max>");
+    if (![2, 3].includes(ns.args.length)) {
+        log.fatal(ns, "Usage: <HostName> <RAM in GB|Max> <amount>");
     }
-
     const hostName = ns.args[0];
     let ram = ns.args[1];
-    const maxRam = 1048576;
+    const amount = ns.args[2] ?? 1;
+
+    const maxRam = 1048576; // 1024 Tb
     const ramString = `${ram}`.toLowerCase();
     if (ramString === 'max') {
         ram = maxRam;
@@ -25,10 +26,12 @@ export async function main(ns) {
     }
 
     const newServerCost = formatMoney(ns, ns.getPurchasedServerCost(ram));
-    const newHostName = ns.purchaseServer(hostName, ram);
-    if (newHostName.length) {
-        log.debug(ns, `Server '${newHostName}' purchased. Payed ${newServerCost}`);
-    } else {
-        log.error(ns, `No money to buy a server with '${ram}GB' RAM. Needs ${newServerCost}`);
+    for (let i = 0; i < amount; i++) {
+        const newHostName = ns.purchaseServer(hostName, ram);
+        if (newHostName.length) {
+            log.debug(ns, `Server '${newHostName}' purchased. Paid ${newServerCost}`);
+        } else {
+            log.error(ns, `No money to buy a server with '${ram}GB' RAM. Needs ${newServerCost}`);
+        }
     }
 }

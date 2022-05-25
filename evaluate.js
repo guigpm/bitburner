@@ -124,7 +124,7 @@ export async function main(ns) {
     separator = separator.join("")
     const player = ns.getPlayer();
     // player.hacking = 1000; // Simulate different hacking levels
-    const rows = servers.map(server => new ServerRow(ns, server, player, 25 * 1 * 1024));
+    const rows = servers.map(server => new ServerRow(ns, server, player, 25 * 4 * 1024));
     rows.sort((a, b) => (a.avgMoneyPerHack - b.avgMoneyPerHack) * -1);
     ns.tprintf(header);
     ns.tprintf(separator);

@@ -1,8 +1,9 @@
 import { deploy, getMaxThreadsFromScript, growCondition, weakenCondition } from './lib.js';
-import { log } from './log.js';
+import { log, logLevel } from './log.js';
 
 /** @param {import("./NameSpace").NS} nameSpace */
 export async function main(ns) {
+  log.logLevel = logLevel.error;
   ns.disableLog("sleep");
   const executer = ns.args[0];
   const target = ns.args[1];

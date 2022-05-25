@@ -3,7 +3,7 @@ import { log, logLevel } from './log.js';
 
 /** @param {import("./NameSpace").NS} ns */
 export async function main(ns) {
-  log.logLevel = logLevel.debug;
+  log.logLevel = logLevel.error;
   let executerServerNames = ["home-"];
   let unstopableExecution = false;
   if (ns.args.length > 0) {
@@ -39,6 +39,7 @@ export async function main(ns) {
         await breakServer(ns, target, activeExecuters);
       }
     }
+    await ns.sleep(500);
   } while (unstopableExecution);
   log.info(ns, "Last line of " + ns.getScriptName());
 }
