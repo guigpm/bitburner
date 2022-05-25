@@ -3,7 +3,7 @@ import { log, logLevel } from './log.js';
 
 /** @param {import("./NameSpace").NS} nameSpace */
 export async function main(ns) {
-  log.logLevel = logLevel.error;
+  log.logLevel = logLevel.trace;
   ns.disableLog("sleep");
   const executer = ns.args[0];
   const target = ns.args[1];

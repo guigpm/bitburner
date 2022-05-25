@@ -29,6 +29,7 @@ export async function main(ns) {
   }
 
   do {
+    await waitTargetPid(ns, ns.run("crawler2.js", 1, 'own'));
     const servers = serversWithinDistance(ns, 10);
     const targets = servers.filter((server) => server !== "home" && filterExecuters(server).length == 0);
 

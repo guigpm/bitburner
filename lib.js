@@ -252,13 +252,16 @@ export function getAvailableRam(ns, target) {
  * @param {import("./NameSpace").NS} ns
  * @param {string} target Defines the "target server"
  * @param {number} ramUsage [optional] value in GB
+ * @param {number} ramRemainingOnHome [optional] value in GB
  * @returns {number}
  */
-export function getMaxThreads(ns, target, ramUsage = 0) {
+export function getMaxThreads(ns, target, ramUsage = 0, ramRemainingOnHome = 32) {
   if (ramUsage == 0) {
     ramUsage = 1;
   }
-  return Math.floor(getAvailableRam(ns, target) / ramUsage);
+  return Math.floor((
+    getAvailableRam(ns, target) - ('home' === target ? ramRemainingOnHome : 0)
+  ) / ramUsage);
 }
 
 /**
@@ -283,12 +286,13 @@ export function getThreadsByRam(availableRam, ramUsage = 0) {
  * 
  * @param {import("./NameSpace").NS} ns
  * @param {string} target Defines the "target server"
- * @param {script} script value in GB
+ * @param {script} script
+ * @param {number} ramRemainingOnHome [optional] value in GB
  * @returns {number}
  */
-export function getMaxThreadsFromScript(ns, target, script) {
+export function getMaxThreadsFromScript(ns, target, script, ramRemainingOnHome = 32) {
   const scriptRam = ns.getScriptRam(script);
-  return getMaxThreads(ns, target, scriptRam);
+  return getMaxThreads(ns, target, scriptRam, ramRemainingOnHome);
 }
 
 /** 
