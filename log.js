@@ -1,4 +1,4 @@
-import { BaseClass } from './baseClass.js';
+import { BaseClass, BaseContext } from './base.js';
 
 export const logLevel = {
   'fatal': 'fatal',
@@ -14,7 +14,7 @@ export const printFns = {
   "script": "printf"
 };
 
-export class Log extends BaseClass {
+export class Log extends BaseContext {
   logLevels = [
     logLevel.error,
     logLevel.warning,

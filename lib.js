@@ -1,19 +1,4 @@
-import { log } from './log.js';
 import { Queue } from './queue.js';
-
-/**
- * @param {import("./NameSpace").NS} ns
- * @param {int} pid
- * @param {string} target Defines the "target server" [optional]
- */
-export async function waitTargetPid(ns, pid, target = undefined) {
-  disableFunctionLog(ns, 'sleep');
-  while (ns.isRunning(pid, target)) {
-    await ns.sleep(100);
-  }
-}
-
-
 
 /**
  * @param {import("./NameSpace").NS} ns

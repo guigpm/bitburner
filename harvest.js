@@ -1,4 +1,4 @@
-import { getMaxThreads, growCondition, waitTargetPid, weakenCondition } from './lib.js';
+import { getMaxThreads, growCondition, weakenCondition } from './lib.js';
 import { Context } from "./context";
 
 export async function main(ns) {
@@ -12,38 +12,22 @@ export async function main(ns) {
 
   var target = ctx.ns.args[0];
 
-  const weakThreads = getMaxThreads(ctx, target, 1.75);
-  const growThreads = getMaxThreads(ctx, target, 1.75);
-  const hackThreads = getMaxThreads(ctx, target, 1.7);
+  const weakThreads = getMaxThreads(ctx.ns, target, 1.75);
+  const growThreads = getMaxThreads(ctx.ns, target, 1.75);
+  const hackThreads = getMaxThreads(ctx.ns, target, 1.7);
 
-  // Infinite loop that continously hacks/grows/weakens the target server
   while (true) {
-    let execPID = null;
-    if (weakenCondition(ctx, target)) {
-      if (weakThreads) {
-        execPID = ctx.ns.exec("weak.js", target, weakThreads, target);
-      }
-
-      // If the server's security level is above our threshold, weaken it
+    let process = undefined;
+    if (weakenCondition(ctx.ns, target)) {
+      process = ctx.Process("weak.js", target).start(target, weakThreads);
       await ctx.ns.weaken(target);
-    } else if (growCondition(ctx, target)) {
-      if (growThreads) {
-        execPID = ctx.ns.exec("grow.js", target, growThreads, target);
-      }
-
-      // If the server's money is less than our threshold, grow it
+    } else if (growCondition(ctx.ns, target)) {
+      process = ctx.Process("grow.js", target).start(target, growThreads);
       await ctx.ns.grow(target);
     } else {
-      if (hackThreads) {
-        execPID = ctx.ns.exec("hack.js", target, hackThreads, target);
-      }
-
-      // Otherwise, hack it
+      process = ctx.Process("hack.js", target).start(target, hackThreads);
       await ctx.ns.hack(target);
     }
-
-    if (execPID) {
-      await waitTargetPid(ctx, execPID, target);
-    }
+    await process.wait();
   }
 }
