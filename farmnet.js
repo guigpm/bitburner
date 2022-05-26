@@ -1,4 +1,3 @@
-import { disableFunctionLog } from "./log.js";
 import { formatMoney } from "./lib.js";
 import { Context } from "./context";
 
@@ -19,7 +18,7 @@ function buildAction(ctx, cost, action, log) {
     return {
         "cost": cost,
         "action": action,
-        "log": sprintf("%s: %s", log, formatMoney(ctx, cost))
+        "log": sprintf("%s: %s", log, formatMoney(ctx.ns, cost))
     }
 }
 
@@ -41,7 +40,6 @@ function parseInputMoney(text) {
 export async function main(ns) {
     const ctx = new Context(ns);
     const minMoney = ctx.ns.args.length == 0 ? 0 : parseInputMoney(ctx.ns.args[0]);
-    disableFunctionLog(ctx, "sleep");
     while (true) {
         const actions = [];
         if (ctx.ns.hacknet.numNodes() < ctx.ns.hacknet.maxNumNodes()) {

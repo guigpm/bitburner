@@ -17,7 +17,7 @@ class ServerRow {
         this.ctx = ctx;
         this.server = server;
         this.hackable = canBeHacked(this.ctx, server.hostname, "", false);
-        this.broken = !weakenCondition(this.ctx, server.hostname) && !growCondition(this.ctx, server.hostname)
+        this.broken = !weakenCondition(this.ctx.ns, server.hostname) && !growCondition(this.ctx.ns, server.hostname)
         this.growth = server.serverGrowth;
         this.hackTimeInSeconds = ctx.ns.formulas.hacking.hackTime(server, player) / 1000;
         this.growTimeInSeconds = ctx.ns.formulas.hacking.growTime(server, player) / 1000;
@@ -27,9 +27,9 @@ class ServerRow {
         this.hackAmountPercentage = ctx.ns.formulas.hacking.hackPercent(server, player);
         this.hackThreads = this.hackAmountPercentage == 0 ? 0 : Math.ceil(thresholds.money / this.hackAmountPercentage);
         this.hackSuccessRate = ctx.ns.formulas.hacking.hackChance(server, player);
-        this.targetMoney = getMoneyThreshold(this.ctx, server.hostname);
+        this.targetMoney = getMoneyThreshold(this.ctx.ns, server.hostname);
 
-        this.targetSecurityLevel = getSecurityThreshold(this.ctx, server.hostname);
+        this.targetSecurityLevel = getSecurityThreshold(this.ctx.ns, server.hostname);
         this.moneyPerHack = this.targetMoney * this.hackAmountPercentage * this.hackThreads;
         this.avgMoneyPerHack = this.moneyPerHack * this.hackSuccessRate;
 
@@ -90,9 +90,9 @@ class ServerRow {
             Math.round(this.growTimeInSeconds) + "s",
             Math.round(this.hackTimeInSeconds) + "s",
             Math.round(this.hgwTimeInSeconds) + "s",
-            formatMoney(this.ctx, this.moneyPerHack),
+            formatMoney(this.ctx.ns, this.moneyPerHack),
             sprintf("%.1f", this.hackSuccessRate * 100),
-            formatMoney(this.ctx, this.avgMoneyPerHack),
+            formatMoney(this.ctx.ns, this.avgMoneyPerHack),
             sprintf("%.1fs", this.growTimeAfterHack),
             sprintf("%.1fs", this.growTimeUntilBreak),
             sprintf("%.1fs", this.weakTimeAfterHack),
@@ -110,7 +110,7 @@ export async function main(ns) {
     const ctx = new Context(ns);
     ctx.log.logLevel = logLevel.debug;
     const maxDistance = ctx.ns.args.length == 1 ? ctx.ns.args[0] : 1;
-    const servers = serversWithinDistance(this.ctx, maxDistance)
+    const servers = serversWithinDistance(ctx.ns, maxDistance)
         .filter(server => !server.startsWith("home"))
         .map((server) => ctx.ns.getServer(server));
 
