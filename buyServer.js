@@ -25,7 +25,7 @@ export async function main(ns) {
         ctx.log.fatal(`Max RAM size option is '${maxRam}'GB (or use 'Max' string).`);
     }
 
-    const newServerCost = formatMoney(ctx, ctx.ns.getPurchasedServerCost(ram));
+    const newServerCost = formatMoney(ctx.ns, ctx.ns.getPurchasedServerCost(ram));
     for (let i = 0; i < amount; i++) {
         const newHostName = ctx.ns.purchaseServer(hostName, ram);
         if (newHostName.length) {
