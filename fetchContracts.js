@@ -27,6 +27,7 @@ export async function main(ns) {
             }
         }
     }
+    foundContracts.sort((a, b) => (a.server > b.server) ? 1 : ((b.server > a.server) ? -1 : 0));
     for (const contract of foundContracts) {
         ns.tprint(contract.server + " " + contract.filename);
     }
