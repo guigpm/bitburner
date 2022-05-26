@@ -1,4 +1,4 @@
-import { deploy, openPorts, serversWithinDistance, canBeHacked } from './lib.js';
+import { deploy, openPorts, serversWithinDistance, getMaxThreadsFromScript } from './lib.js';
 import { logLevel } from './log.js';
 import { Context } from "./context";
 
@@ -7,7 +7,7 @@ import { Context } from "./context";
  */
 async function own(ctx, target) {
     ctx.log.info(`Gaining Root Access on ${target}`);
-    if (openPorts(ctx, target)) {
+    if (openPorts(ctx.ns, target)) {
         ctx.ns.nuke(target);
         ctx.log.info(`Server ${target} owned`);
     } else {
@@ -18,19 +18,10 @@ async function own(ctx, target) {
 /**
  * @param {string} target
  */
-async function startHack(ctx, target) {
-    ctx.log.info(`Start harvest on ${target}`);
-    const availableRam = ctx.ns.getServerMaxRam(target) - ctx.ns.getServerUsedRam(target)
-    const harvestRam = ctx.ns.getScriptRam("harvest.js");
-    const threads = Math.floor(availableRam / harvestRam);
-    if (threads) {
-        const pid = ctx.ns.exec("harvest.js", target, 1, target);
-        if (pid == 0) {
-            ctx.log.warning(`Failed to start harvest.js on ${target}. Probably no RAM.`);
-        }
-    } else {
-        ctx.log.error(`${target} has no available RAM.`);
-    }
+export async function startHack(ctx, target) {
+    ctx.log.trace(`Start harvest on ${target}`);
+    const threads = getMaxThreadsFromScript(ctx.ns, target, "harvest.js");
+    return ctx.Process("harvest.js", target).start(target, Math.min(threads, 1));
 }
 
 /**
@@ -38,8 +29,8 @@ async function startHack(ctx, target) {
  */
 async function killall_target(ctx, target) {
     ctx.log.info(`Killing all process on ${target}`);
-    ns.killall(target);
-    ctx.log.debug(`Deleted ${ns.getScriptName()} on ${target}`);
+    ctx.ns.killall(target);
+    ctx.log.debug(`Deleted ${ctx.ns.getScriptName()} on ${target}`);
 }
 
 export async function main(ns) {
@@ -51,7 +42,7 @@ export async function main(ns) {
     }
 
     const operation = ctx.ns.args[0].toLowerCase();
-    const adjacents = serversWithinDistance(ctx, 10).filter(
+    const adjacents = serversWithinDistance(ctx.ns, 10).filter(
         adjacent => !adjacent.startsWith("home-") && adjacent != "home"
     );
     ctx.log.debug(adjacents);

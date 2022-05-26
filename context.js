@@ -16,8 +16,11 @@ export class Context extends BaseClass {
         return new class_(this, ...args);
     }
 
-    /** @returns {Process} */
-    Process(...args) {
-        return this.factory(Process, ...args);
+    /**
+     * @param {script} script
+     * @param {any[]} args
+     * @returns {Process} */
+    Process(script, ...args) {
+        return this.factory(Process, script, ...args);
     }
 }

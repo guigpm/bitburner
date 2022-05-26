@@ -10,12 +10,13 @@ export class Process extends BaseContext {
     }
 
     start(target, threads = undefined) {
+        this.ctx.log.trace(`@start Starting script=${this.script} args=${this.args} target=${this.target}`);
         if (this.pid !== undefined) {
             this.ctx.log.error(`@start Process already executing with pid ${this.pid}`);
             return this;
         }
         if (threads < 1) {
-            this.ctx.log.warning(`@start Threads < 1. Spawn failed for ${this.script} with args ${this.args} on ${this.target}`);
+            this.ctx.log.warning(`@start Threads < 1. Spawn failed for ${this.script} with args ${this.args} on ${target}`);
             return this;
         }
         this.target = target;
@@ -23,22 +24,29 @@ export class Process extends BaseContext {
         if (this.pid == 0) {
             this.ctx.log.error(`@start Spawn failed for ${this.script} with args ${this.args} on ${this.target}`);
         }
+        else {
+            this.ctx.log.trace(`@start script=${this.script} args=${this.args} target=${this.target} PID=${this.pid}`);
+        }
         return this;
     }
 
     startLocal(threads) {
+        this.ctx.log.trace(`@startLocal Starting script=${this.script} args=${this.args} target=${this.target}`);
         if (this.pid !== undefined) {
             this.ctx.log.error(`@startLocal Process already executing with pid ${this.pid}`);
             return this;
         }
         if (threads < 1) {
-            this.ctx.log.warning(`@startLocal Threads < 1. Spawn failed for ${this.script} with args ${this.args}`);
+            this.ctx.log.warning(`@startLocal Threads < 1. Spawn failed for ${this.script} with args ${this.args} `);
             return this;
         }
         this.pid = this.ns.run(this.script, threads, ...this.args);
         this.target = this.ns.getHostname();
         if (this.pid == 0) {
-            this.ctx.log.error(`@startLocal Spawn failed for ${this.script} with args ${this.args}`);
+            this.ctx.log.error(`@startLocal Spawn failed for ${this.script} with args ${this.args} `);
+        }
+        else {
+            this.ctx.log.trace(`@startLocal script = ${this.script} args = ${this.args} target = ${this.target} PID = ${this.pid} `);
         }
         return this;
     }
@@ -46,7 +54,7 @@ export class Process extends BaseContext {
     async wait() {
         if (this.pid === 0) return this;
         if (this.pid === undefined || this.target === undefined) {
-            this.ctx.log.error(`@wait Process not started yet.`);
+            this.ctx.log.warning(`@wait Process not started yet.`);
             return this;
         }
         this.ctx.log.disableFunctionLog("sleep");
@@ -57,5 +65,9 @@ export class Process extends BaseContext {
         this.target = undefined;
         this.ctx.log.enableFunctionLog("sleep");
         return this;
+    }
+
+    get isRunning() {
+        return this.pid !== undefined && this.pid !== 0;
     }
 }

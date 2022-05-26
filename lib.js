@@ -1,3 +1,4 @@
+import { Context } from './context.js';
 import { Queue } from './queue.js';
 
 /**
@@ -5,33 +6,33 @@ import { Queue } from './queue.js';
  * @param {string} target Defines the "target server"
  * @param {string} hostName [optional]
  */
-export async function deploy(ns, target, hostName = undefined) {
-  log.trace(ns, `Deleting old scripts from ${target}`, hostName ?? ns.getHostname());
-  const targetSources = ns.ls(target, '.js');
+export async function deploy(ctx, target, hostName = undefined) {
+  ctx.log.trace(`Deleting old scripts from ${target}`, hostName ?? ctx.ns.getHostname());
+  const targetSources = ctx.ns.ls(target, '.js');
   for (const file of targetSources) {
-    ns.rm(file, target);
+    ctx.ns.rm(file, target);
   }
-  log.trace(ns, `Copying scripts to ${target}`, hostName ?? ns.getHostname());
-  const sources = ns.ls(hostName ?? ns.getHostname(), '.js');
-  log.debug(ns, sources);
+  ctx.log.trace(`Copying scripts to ${target}`, hostName ?? ctx.ns.getHostname());
+  const sources = ctx.ns.ls(hostName ?? ctx.ns.getHostname(), '.js');
+  ctx.log.debug(sources);
   for (const file of sources) {
-    await ns.scp(file, target);
+    await ctx.ns.scp(file, target);
   }
 }
 
 /**
  * @remarks RAM cost 0.4 GB
  * 
- * @param {import("./NameSpace").NS} ns
+ * @param {Context} ns
  * @param {string} target Defines the "target server"
  * @param {script} scriptRunning [optional]
  * @param {boolean} validateRunning [optional]
  */
-export function canBeHacked(ns, target, scriptRunning = 'harvest.js', validateRunning = true) {
-  const alreadyRunning = validateRunning && ns.isRunning(scriptRunning, target, target);
-  const moneyAvailable = ns.getServerMoneyAvailable(target) > 0;
-  const rootAccess = ns.hasRootAccess(target);
-  const hackLevel = ns.getServerRequiredHackingLevel(target) <= ns.getHackingLevel();
+export function canBeHacked(ctx, target, scriptRunning = 'harvest.js', validateRunning = true) {
+  const alreadyRunning = validateRunning && ctx.ns.isRunning(scriptRunning, target, target);
+  const moneyAvailable = ctx.ns.getServerMoneyAvailable(target) > 0;
+  const rootAccess = ctx.ns.hasRootAccess(target);
+  const hackLevel = ctx.ns.getServerRequiredHackingLevel(target) <= ctx.ns.getHackingLevel();
 
   let reasons = "";
   if (alreadyRunning) reasons += "already being hacked";
@@ -39,7 +40,7 @@ export function canBeHacked(ns, target, scriptRunning = 'harvest.js', validateRu
   if (!rootAccess) reasons += (reasons.length ? ' / ' : '') + "no root access";
   if (!hackLevel) reasons += (reasons.length ? ' / ' : '') + "player hack level too low";
 
-  if (reasons.length > 0) log.info(ns, `Cannot hack ${target}: ${reasons}`);
+  if (reasons.length > 0) ctx.log.info(`Cannot hack ${target}: ${reasons}`);
 
   return !alreadyRunning && moneyAvailable && rootAccess && hackLevel;
 }
