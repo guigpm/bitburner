@@ -13,25 +13,7 @@ export async function waitTargetPid(ns, pid, target = undefined) {
   }
 }
 
-/**
- * @param {import("./NameSpace").NS} ns
- * @param {string} fn
- */
-export function disableFunctionLog(ns, fn) {
-  if (ns.isLogEnabled(fn)) {
-    ns.disableLog(fn);
-  }
-}
 
-/**
- * @param {import("./NameSpace").NS} ns
- * @param {string} fn
- */
-export function enableFunctionLog(ns, fn) {
-  if (!ns.isLogEnabled(fn)) {
-    ns.enableLog(fn);
-  }
-}
 
 /**
  * @param {import("./NameSpace").NS} ns

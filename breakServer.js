@@ -1,62 +1,63 @@
 import { deploy, getMaxThreadsFromScript, growCondition, weakenCondition } from './lib.js';
-import { log, logLevel } from './log.js';
+import { logLevel } from './log.js';
+import { Context } from "./context";
 
-/** @param {import("./NameSpace").NS} ns */
 export async function main(ns) {
-  log.logLevel = logLevel.trace;
-  ns.disableLog("sleep");
-  const executer = ns.args[0];
-  const target = ns.args[1];
+  const ctx = new Context(ns);
+  ctx.log.logLevel = logLevel.trace;
+  ctx.log.disableLog("sleep");
+  const executer = ctx.ns.args[0];
+  const target = ctx.ns.args[1];
   if (executer != "home") {
-    await deploy(ns, executer);
+    await deploy(ctx, executer);
   }
-  await deploy(ns, target);
+  await deploy(ctx, target);
 
-  const weakThreads = getMaxThreadsFromScript(ns, executer, "weak.js");
-  const growThreads = getMaxThreadsFromScript(ns, executer, "grow.js");
-  const harvestThreads = getMaxThreadsFromScript(ns, target, "harvest.js");
-  const harvestRunning = ns.isRunning("harvest.js", target, target);
+  const weakThreads = getMaxThreadsFromScript(ctx, executer, "weak.js");
+  const growThreads = getMaxThreadsFromScript(ctx, executer, "grow.js");
+  const harvestThreads = getMaxThreadsFromScript(ctx, target, "harvest.js");
+  const harvestRunning = ctx.ns.isRunning("harvest.js", target, target);
   let pid = 0, stop = false;
 
   if (harvestRunning) {
-    log.info(ns, `Already running 'harvest.js' on ${target}.`);
+    ctx.log.info(`Already running 'harvest.js' on ${target}.`);
   } else if (harvestThreads) {
-    pid = ns.exec("harvest.js", target, 1 /* Thread */, target);
-    log.trace(ns, `Started 'harvest.js' on ${target} with PID=<${pid ?? 'NULL'}>.`)
+    pid = ctx.ns.exec("harvest.js", target, 1 /* Thread */, target);
+    ctx.log.trace(`Started 'harvest.js' on ${target} with PID=<${pid ?? 'NULL'}>.`)
   } else {
-    log.error(ns, `Can't start 'harvest.js' on ${target}. Probably no RAM.`);
+    ctx.log.error(`Can't start 'harvest.js' on ${target}. Probably no RAM.`);
   }
 
-  log.info(ns, `Breaking server ${target} on ${executer}`);
+  ctx.log.info(`Breaking server ${target} on ${executer}`);
   while (!stop) {
-    if (weakenCondition(ns, target)) {
-      log.debug(ns, `Weak ${target} on ${executer}`);
+    if (weakenCondition(ctx, target)) {
+      ctx.log.debug(`Weak ${target} on ${executer}`);
       if (weakThreads) {
-        pid = ns.exec("weak.js", executer, weakThreads, target);
+        pid = ctx.ns.exec("weak.js", executer, weakThreads, target);
       } else {
-        log.error(ns, `Can't weak on ${executer}. Probably no RAM.`);
+        ctx.log.error(`Can't weak on ${executer}. Probably no RAM.`);
         break;
       }
-    } else if (growCondition(ns, target)) {
-      log.debug(ns, `Grow ${target} on ${executer}`);
+    } else if (growCondition(ctx, target)) {
+      ctx.log.debug(`Grow ${target} on ${executer}`);
       if (growThreads) {
-        pid = ns.exec("grow.js", executer, growThreads, target);
+        pid = ctx.ns.exec("grow.js", executer, growThreads, target);
       } else {
-        log.error(ns, `Can't grow on ${executer}. Probably no RAM.`);
+        ctx.log.error(`Can't grow on ${executer}. Probably no RAM.`);
         break;
       }
     } else {
-      log.debug(ns, `Harvest ${target} on ${executer}`);
+      ctx.log.debug(`Harvest ${target} on ${executer}`);
       if (harvestRunning || harvestThreads) {
         break;
       } else {
-        pid = ns.exec("hack.js", executer, getMaxThreadsFromScript(ns, executer, "hack.js"), target);
-        log.info(ns, `Hacking on ${executer}.`);
+        pid = ctx.ns.exec("hack.js", executer, getMaxThreadsFromScript(ctx, executer, "hack.js"), target);
+        ctx.log.info(`Hacking on ${executer}.`);
         stop = true;
       }
     }
-    while (pid && ns.isRunning(pid, executer)) {
-      await ns.sleep(500);
+    while (pid && ctx.ns.isRunning(pid, executer)) {
+      await ctx.ns.sleep(500);
     }
   }
 }

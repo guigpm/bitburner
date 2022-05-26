@@ -1,48 +1,49 @@
 import { getMaxThreads, growCondition, waitTargetPid, weakenCondition } from './lib.js';
-import { log } from './log.js';
+import { Context } from "./context";
 
-/** @param {import("./NameSpace").NS} ns */
 export async function main(ns) {
-  if (ns.args.length != 1) {
-    log.fatal();
-    ns.tprint("Missing argument 0: <target>")
-    ns.exit(1)
+  const ctx = new Context(ns);
+
+  if (ctx.ns.args.length != 1) {
+    ctx.log.fatal();
+    ctx.ns.tprint("Missing argument 0: <target>")
+    ctx.ns.exit(1)
   }
 
-  var target = ns.args[0];
+  var target = ctx.ns.args[0];
 
-  const weakThreads = getMaxThreads(ns, target, 1.75);
-  const growThreads = getMaxThreads(ns, target, 1.75);
-  const hackThreads = getMaxThreads(ns, target, 1.7);
+  const weakThreads = getMaxThreads(ctx, target, 1.75);
+  const growThreads = getMaxThreads(ctx, target, 1.75);
+  const hackThreads = getMaxThreads(ctx, target, 1.7);
 
   // Infinite loop that continously hacks/grows/weakens the target server
   while (true) {
     let execPID = null;
-    if (weakenCondition(ns, target)) {
+    if (weakenCondition(ctx, target)) {
       if (weakThreads) {
-        execPID = ns.exec("weak.js", target, weakThreads, target);
+        execPID = ctx.ns.exec("weak.js", target, weakThreads, target);
       }
 
       // If the server's security level is above our threshold, weaken it
-      await ns.weaken(target);
-    } else if (growCondition(ns, target)) {
+      await ctx.ns.weaken(target);
+    } else if (growCondition(ctx, target)) {
       if (growThreads) {
-        execPID = ns.exec("grow.js", target, growThreads, target);
+        execPID = ctx.ns.exec("grow.js", target, growThreads, target);
       }
 
       // If the server's money is less than our threshold, grow it
-      await ns.grow(target);
+      await ctx.ns.grow(target);
     } else {
       if (hackThreads) {
-        execPID = ns.exec("hack.js", target, hackThreads, target);
+        execPID = ctx.ns.exec("hack.js", target, hackThreads, target);
       }
 
       // Otherwise, hack it
-      await ns.hack(target);
+      await ctx.ns.hack(target);
     }
 
     if (execPID) {
-      await waitTargetPid(ns, execPID, target);
+      await waitTargetPid(ctx, execPID, target);
     }
   }
 }
