@@ -64,6 +64,10 @@ export class Log extends BaseContext {
     return this.logLevels.indexOf(level) <= this.logLevels.indexOf(this.actualLogLevel);
   }
 
+  set logLevel(level) {
+    this.actualLogLevel = level;
+  }
+
   /**
    * @param {string} message
    * @param {string} origin
