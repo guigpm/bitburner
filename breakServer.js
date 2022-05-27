@@ -4,7 +4,7 @@ import { Context } from "./context";
 
 export async function main(ns) {
   const ctx = new Context(ns);
-  ctx.log.logLevel = logLevel.trace;
+  ctx.log.logLevel = logLevel.warning;
   const executer = ctx.ns.args[0];
   const target = ctx.ns.args[1];
   if (executer != "home") {
