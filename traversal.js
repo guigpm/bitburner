@@ -10,9 +10,11 @@ export class BredthFirstSearch extends BaseContext {
 
         while (!queue.isEmpty) {
             const current = queue.dequeue();
-            results.push(visitFn(start, 1));
-
-            const adjacents = ns.scan(current.name);
+            const visitResult = visitFn(this.ctx, current.name, current.distance);
+            if (visitResult != null && visitResult.length !== 0) {
+                results.push(visitResult);
+            }
+            const adjacents = this.ctx.ns.scan(current.name);
             if (current.distance <= maxDistance) {
                 for (const adjacent of adjacents) {
                     if (!visited.includes(adjacent)) {
@@ -22,10 +24,9 @@ export class BredthFirstSearch extends BaseContext {
                 }
             }
         }
-        return results;
+        return results.flat();
     }
 }
-
 /**
  * 
  * @param {Context} ctx 
@@ -42,5 +43,5 @@ export function serversWithinDistance2(ctx, start = "home", maxDistance = undefi
             maxDistance = 3;
         }
     }
-    return ctx.BredthFirstSearch((hostname, distance) => hostname, start, maxDistance);
+    return ctx.BredthFirstSearch((ctx, hostname, distance) => hostname, start, maxDistance);
 }

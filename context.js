@@ -30,7 +30,7 @@ export class Context extends BaseClass {
      * @param {string} start
      * @param {int} maxDistance
      * @returns {BredthFirstSearch} */
-    BredthFirstSearch(visitFn, start, maxDistance) {
-        return this.factory(BredthFirstSearch, visitFn, start, maxDistance);
+    BredthFirstSearch() {
+        return this.factory(BredthFirstSearch);
     }
 }
