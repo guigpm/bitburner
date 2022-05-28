@@ -2,7 +2,16 @@ import { BaseContext } from "./base";
 import { Queue } from "./queue";
 
 export class BreadthFirstSearch extends BaseContext {
-    traverse(visitFn, start = "home", maxDistance = 10) {
+
+    /**
+     * @param {Function} visitFn ```ts
+     *  (ctx: Context, hostName: string, distanceFromStart: number): any => {}
+     * ```
+     * @param {string} start 
+     * @param {number} maxDistance 
+     * @returns {any[]} Array of visitFn results
+     */
+    traverse(visitFn, start = "home", maxDistance = Infinity) {
         const queue = new Queue();
         queue.enqueue({ "name": start, "distance": 1 })
         const visited = [start];
@@ -10,9 +19,11 @@ export class BreadthFirstSearch extends BaseContext {
 
         while (!queue.isEmpty) {
             const current = queue.dequeue();
-            const visitResult = visitFn(this.ctx, current.name, current.distance);
-            if (visitResult != null && visitResult.length !== 0) {
-                results.push(visitResult);
+            if (visitFn && typeof visitFn === 'function') {
+                const visitResult = visitFn(this.ctx, current.name, current.distance);
+                if (visitResult != null && visitResult.length !== 0) {
+                    results.push(visitResult);
+                }
             }
             const adjacents = this.ctx.ns.scan(current.name);
             if (current.distance <= maxDistance) {
@@ -27,6 +38,7 @@ export class BreadthFirstSearch extends BaseContext {
         return results.flat();
     }
 }
+
 /**
  * 
  * @param {Context} ctx 
