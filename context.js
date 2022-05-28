@@ -2,7 +2,7 @@ import { BaseClass, BaseContext } from "./base";
 import { Invade } from "./invade";
 import { Log } from "./log";
 import { Process } from "./process"
-import { BredthFirstSearch } from "./traversal";
+import { BreadthFirstSearch } from "./traversal";
 
 export class Context extends BaseClass {
     /** @type {Log} log */
@@ -35,10 +35,10 @@ export class Context extends BaseClass {
      * @param {Function} visitFn
      * @param {string} start
      * @param {int} maxDistance
-     * @returns {BredthFirstSearch}
+     * @returns {BreadthFirstSearch}
      */
-    BredthFirstSearch() {
-        return this.factory(BredthFirstSearch);
+    BreadthFirstSearch() {
+        return this.factory(BreadthFirstSearch);
     }
 
     /**

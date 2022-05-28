@@ -51,8 +51,10 @@ export async function main(ns) {
     }
 
     const operation = ctx.ns.args[0].toLowerCase();
-    const adjacents = serversWithinDistance(ctx.ns, 10).filter(
-        adjacent => !adjacent.startsWith("home-") && adjacent != "home"
+    const adjacents = serversWithinDistance(ctx.ns).filter(
+        adjacent => !adjacent.startsWith("home-")
+            && adjacent != "home"
+            && adjacent != ctx.ns.getHostname()
     );
     ctx.log.debug(adjacents);
     for (const target of adjacents) {

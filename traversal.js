@@ -1,7 +1,7 @@
 import { BaseContext } from "./base";
 import { Queue } from "./queue";
 
-export class BredthFirstSearch extends BaseContext {
+export class BreadthFirstSearch extends BaseContext {
     traverse(visitFn, start = "home", maxDistance = 10) {
         const queue = new Queue();
         queue.enqueue({ "name": start, "distance": 1 })

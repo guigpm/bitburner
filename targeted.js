@@ -29,7 +29,7 @@ export async function main(ns) {
 
   do {
     await ctx.Process("crawler2.js", "hack").startLocal(1).wait();
-    const servers = serversWithinDistance(ctx.ns, 10);
+    const servers = serversWithinDistance(ctx.ns);
     const targets = servers.filter((server) => server !== "home" && filterExecuters(server).length == 0);
 
     ctx.log.info(`Targets: ${targets.toString()}`);

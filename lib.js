@@ -1,4 +1,3 @@
-import { Queue } from './queue.js';
 
 /**
  * @param {import("./context").Context} ctx
@@ -26,29 +25,20 @@ export async function deploy(ctx, target, hostName = undefined) {
  * @param {int} maxDistance [optional]
  * @returns {string[]}
  */
-export function serversWithinDistance(ns, maxDistance = undefined) {
-  if (maxDistance == undefined) {
-    if (ns.fileExists("DeepscanV2.exe", "home")) {
-      maxDistance = 10;
-    } else if (ns.fileExists("DeepscanV1.exe", "home")) {
-      maxDistance = 5;
-    } else {
-      maxDistance = 3;
-    }
-  }
+export function serversWithinDistance(ns, maxDistance = Infinity) {
   const visited = [];
-  const queue = new Queue();
-  queue.enqueue({ "name": ns.getHostname(), "distance": 1 })
+  const queue = [];
+  queue.push({ "name": ns.getHostname(), "distance": 1 });
 
-  while (!queue.isEmpty) {
-    const current = queue.dequeue();
+  while (queue.length) {
+    const current = queue.shift();
     visited.push(current.name);
 
     const adjacents = ns.scan(current.name);
     if (current.distance <= maxDistance) {
       for (const adjacent of adjacents) {
         if (!visited.includes(adjacent)) {
-          queue.enqueue({ "name": adjacent, "distance": current.distance + 1 });
+          queue.push({ "name": adjacent, "distance": current.distance + 1 });
         }
       }
     }
