@@ -1,7 +1,7 @@
-import { Context } from './context.js';
 import { Queue } from './queue.js';
 
 /**
+ * @param {import("./context").Context} ctx
  * @param {import("./NameSpace").NS} ns
  * @param {string} target Defines the "target server"
  * @param {string} hostName [optional]
@@ -18,92 +18,6 @@ export async function deploy(ctx, target, hostName = undefined) {
   for (const file of sources) {
     await ctx.ns.scp(file, target);
   }
-}
-
-/**
- * @remarks RAM cost 0.4 GB
- * 
- * @param {Context} ns
- * @param {string} target Defines the "target server"
- * @param {script} scriptRunning [optional]
- * @param {boolean} validateRunning [optional]
- */
-export function canBeHacked(ctx, target, scriptRunning = 'harvest.js', validateRunning = true) {
-  const alreadyRunning = validateRunning && ctx.ns.isRunning(scriptRunning, target, target);
-  const moneyAvailable = ctx.ns.getServerMoneyAvailable(target) > 0;
-  const rootAccess = ctx.ns.hasRootAccess(target);
-  const hackLevel = ctx.ns.getServerRequiredHackingLevel(target) <= ctx.ns.getHackingLevel();
-
-  let reasons = "";
-  if (alreadyRunning) reasons += "already being hacked";
-  if (!moneyAvailable) reasons += (reasons.length ? ' / ' : '') + "no money";
-  if (!rootAccess) reasons += (reasons.length ? ' / ' : '') + "no root access";
-  if (!hackLevel) reasons += (reasons.length ? ' / ' : '') + "player hack level too low";
-
-  if (reasons.length > 0) ctx.log.info(`Cannot hack ${target}: ${reasons}`);
-
-  return !alreadyRunning && moneyAvailable && rootAccess && hackLevel;
-}
-
-/**
- * 
- * @remarks RAM cost: 0.45 GB
- * 
- * @param {import("./NameSpace").NS} ns
- * @param {string} target Defines the "target server"
- * @param {int} portsRequired [optional]
- */
-export function openPorts(ns, target, portsRequired = undefined) {
-  if (portsRequired === undefined) {
-    portsRequired = ns.getServerNumPortsRequired(target);
-  }
-
-  // BruteSSH.exe - Opens up SSH Ports.
-  // FTPCrack.exe - Opens up FTP Ports.
-  // relaySMTP.exe - Opens up SMTP Ports.
-  // HTTPWorm.exe - Opens up HTTP Ports.
-  // SQLInject.exe - Opens up SQL Ports.
-  // ServerProfiler.exe - Displays detailed information about a server.
-  // DeepscanV1.exe - Enables 'scan-analyze' with a depth up to 5.
-  // DeepscanV2.exe - Enables 'scan-analyze' with a depth up to 10.
-  // AutoLink.exe - Enables direct connect via 'scan-analyze'.
-
-  if (portsRequired > 5) {
-    return false;
-  }
-
-  if (portsRequired >= 5) {
-    if (!ns.fileExists("SQLInject.exe", "home")) {
-      return false;
-    }
-    ns.sqlinject(target);
-  }
-  if (portsRequired >= 4) {
-    if (!ns.fileExists("HTTPWorm.exe", "home")) {
-      return false;
-    }
-    ns.httpworm(target);
-  }
-  if (portsRequired >= 3) {
-    if (!ns.fileExists("relaySMTP.exe", "home")) {
-      return false;
-    }
-    ns.relaysmtp(target);
-  }
-  if (portsRequired >= 2) {
-    if (!ns.fileExists("FTPCrack.exe", "home")) {
-      return false;
-    }
-    ns.ftpcrack(target);
-  }
-  if (portsRequired >= 1) {
-    if (!ns.fileExists("BruteSSH.exe", "home")) {
-      return false;
-    }
-    ns.brutessh(target);
-  }
-
-  return true;
 }
 
 /**
@@ -124,7 +38,7 @@ export function serversWithinDistance(ns, maxDistance = undefined) {
   }
   const visited = [];
   const queue = new Queue();
-  queue.enqueue({ "name": "home", "distance": 1 })
+  queue.enqueue({ "name": ns.getHostname(), "distance": 1 })
 
   while (!queue.isEmpty) {
     const current = queue.dequeue();
@@ -272,4 +186,4 @@ export function formatMoney(ns, value) {
   return ns.nFormat(value, '$0.000a');
 }
 
-export function Lib() { };
+export class Lib { }

@@ -1,14 +1,20 @@
-import { deploy, openPorts, serversWithinDistance, getMaxThreadsFromScript } from './lib.js';
+import {
+    deploy,
+    serversWithinDistance,
+    getMaxThreadsFromScript,
+} from './lib.js';
 import { logLevel } from './log.js';
 import { Context } from "./context";
 
 /**
+ * @param {Context} ctx 
  * @param {string} target
  */
 async function own(ctx, target) {
     ctx.log.info(`Gaining Root Access on ${target}`);
-    if (openPorts(ctx.ns, target)) {
-        ctx.ns.nuke(target);
+    const invade = ctx.Invade(target);
+    if (invade.openPorts()) {
+        invade.gainRootAccess();
         ctx.log.info(`Server ${target} owned`);
     } else {
         ctx.log.error(`Can't open ports on ${target}`);
@@ -16,7 +22,9 @@ async function own(ctx, target) {
 }
 
 /**
+ * @param {Context} ctx 
  * @param {string} target
+ * @returns {Process}
  */
 export async function startHack(ctx, target) {
     ctx.log.trace(`Start harvest on ${target}`);
@@ -25,6 +33,7 @@ export async function startHack(ctx, target) {
 }
 
 /**
+ * @param {Context} ctx 
  * @param {string} target
  */
 async function killall_target(ctx, target) {

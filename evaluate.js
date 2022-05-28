@@ -1,5 +1,4 @@
 import {
-    canBeHacked,
     serversWithinDistance,
     weakenCondition,
     growCondition,
@@ -13,10 +12,16 @@ import { logLevel } from "./log";
 import { Context } from "./context";
 
 class ServerRow {
+    /** 
+     * @param {Context} ctx 
+     * @param {import("./NameSpace").Server} server 
+     * @param {import("./NameSpace").Player} player 
+     * @param {number} availableMemoryGb 
+     */
     constructor(ctx, server, player, availableMemoryGb) {
         this.ctx = ctx;
         this.server = server;
-        this.hackable = canBeHacked(this.ctx, server.hostname, "", false);
+        this.hackable = ctx.Invade(server.hostname).canBeHacked;
         this.broken = !weakenCondition(this.ctx.ns, server.hostname) && !growCondition(this.ctx.ns, server.hostname)
         this.growth = server.serverGrowth;
         this.hackTimeInSeconds = ctx.ns.formulas.hacking.hackTime(server, player) / 1000;
@@ -45,6 +50,7 @@ class ServerRow {
         this.breakTime = this.growTimeUntilBreak + this.weakTimeUntilBreak;
         this.totalThreads = this.weakThreadsAfterHack + this.growThreadsAfterHack + this.hackThreads
     }
+
     growThreads(initialMoney) {
         const growthMultiplier = this.targetMoney / (initialMoney == 0 ? 1 : initialMoney)
         if (isNaN(growthMultiplier)) return Infinity;
@@ -53,12 +59,14 @@ class ServerRow {
         }
         return Math.ceil(this.ctx.ns.growthAnalyze(this.server.hostname, growthMultiplier));
     }
+
     growingTime(initialMoney, memoryToBreakGb) {
         const growThreads = this.growThreads(initialMoney);
         const availableThreads = getThreadsByRam(memoryToBreakGb, 1.75);
         const requiredGrows = Math.ceil(growThreads / availableThreads);
         return requiredGrows * this.growTimeInSeconds;
     }
+
     weakThreads(initialSecurityLevel) {
         if (this.targetSecurityLevel > initialSecurityLevel) {
             return 0;
@@ -66,6 +74,7 @@ class ServerRow {
         const levelDecreasePerWeaken = this.ctx.ns.weakenAnalyze(1);
         return Math.ceil((initialSecurityLevel - this.targetSecurityLevel) / levelDecreasePerWeaken);
     }
+
     weakenTime(initialSecurityLevel, memoryToBreakGb) {
         const weakensWithSingleThread = this.weakThreads(initialSecurityLevel);
         const availableThreads = getThreadsByRam(memoryToBreakGb, 1.75);
@@ -120,8 +129,9 @@ export async function main(ns) {
         .map((header, index) => header.padStart(paddings[index]))
         .join('');
     let separator = [];
-    for (var i = 0; i < header.length; i++)
+    for (var i = 0; i < header.length; i++) {
         separator.push("-");
+    }
     separator = separator.join("")
     const player = ctx.ns.getPlayer();
     // player.hacking = 1000; // Simulate different hacking levels

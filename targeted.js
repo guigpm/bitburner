@@ -1,4 +1,4 @@
-import { canBeHacked, serversWithinDistance } from './lib.js';
+import { serversWithinDistance } from './lib.js';
 import { logLevel } from './log.js';
 import { Context } from "./context";
 
@@ -28,14 +28,15 @@ export async function main(ns) {
   }
 
   do {
-    await ctx.Process("crawler2.js", "own").startLocal(1).wait();
+    await ctx.Process("crawler2.js", "hack").startLocal(1).wait();
     const servers = serversWithinDistance(ctx.ns, 10);
     const targets = servers.filter((server) => server !== "home" && filterExecuters(server).length == 0);
 
     ctx.log.info(`Targets: ${targets.toString()}`);
     for (const target of targets) {
       const activeExecuters = serversWithinDistance(ctx.ns, 1).filter((server) => filterExecuters(server).length > 0);
-      if (canBeHacked(ctx, target, 'harvest.js', !unstopableExecution)) {
+
+      if (ctx.Invade(target).canBeHacked) {
         await breakServer(ctx, target, activeExecuters);
       }
     }
