@@ -11,7 +11,7 @@ export class BreadthFirstSearch extends BaseContext {
      * @param {number} maxDistance 
      * @returns {any[]} Array of visitFn results
      */
-    traverse(visitFn, start = "home", maxDistance = Infinity) {
+    traverse(visitFn = undefined, start = "home", maxDistance = Infinity) {
         const queue = new Queue();
         queue.enqueue({ "name": start, "distance": 1 })
         const visited = [start];
@@ -24,6 +24,8 @@ export class BreadthFirstSearch extends BaseContext {
                 if (visitResult != null && visitResult.length !== 0) {
                     results.push(visitResult);
                 }
+            } else {
+                results.push(current.name);
             }
             const adjacents = this.ctx.ns.scan(current.name);
             if (current.distance <= maxDistance) {
@@ -37,23 +39,4 @@ export class BreadthFirstSearch extends BaseContext {
         }
         return results.flat();
     }
-}
-
-/**
- * 
- * @param {Context} ctx 
- * @param {int} maxDistance [optional]
- * @returns {string[]}
- */
-export function serversWithinDistance2(ctx, start = "home", maxDistance = undefined) {
-    if (maxDistance == undefined) {
-        if (ns.fileExists("DeepscanV2.exe", "home")) {
-            maxDistance = 10;
-        } else if (ns.fileExists("DeepscanV1.exe", "home")) {
-            maxDistance = 5;
-        } else {
-            maxDistance = 3;
-        }
-    }
-    return ctx.BredthFirstSearch((ctx, hostname, distance) => hostname, start, maxDistance);
 }
