@@ -2,7 +2,6 @@ import { BaseContext } from "./base";
 import { Context } from "./context";
 import { logLevel } from "./log";
 
-
 class NotImplemented extends Error {
     constructor(message = "", ...args) {
         super(message, ...args);
@@ -84,6 +83,7 @@ class UniquePathsInAGridI extends Contract {
         return uniquePaths[rows - 1][columns - 1];
     }
 }
+
 class UniquePathsInAGridII extends Contract {
     solution(grid) {
         const rows = grid.length;
@@ -125,6 +125,12 @@ class UniquePathsInAGridII extends Contract {
     }
 }
 
+/**
+ * @param {Context} ctx 
+ * @param {string} server 
+ * @param {number} _ 
+ * @returns {Contract}
+ */
 function visitServer(ctx, server, _) {
     const contracts = ctx.ns.ls(server, ".cct").map((contract) => {
         const type = ctx.ns.codingcontract.getContractType(contract, server);
@@ -136,15 +142,21 @@ function visitServer(ctx, server, _) {
     });
     return contracts;
 }
+
 class ContractsTable extends BaseContext {
+
+    /**
+     * @param {Context} ctx 
+     * @param {Contract[]} contracts 
+     */
     constructor(ctx, contracts) {
         super(ctx);
         this.contracts = contracts;
     }
 
     print() {
-        const paddings = [20, 50, 5, 10];
-        const headers = "Server Type # TriesRem"
+        const paddings = [20, 50, 5, 15, 10];
+        const headers = "Server Type # HasSolution TriesRem"
             .split(" ")
             .map((header, index) => header.padStart(paddings[index]))
             .join('');
@@ -155,13 +167,15 @@ class ContractsTable extends BaseContext {
         separator = separator.join("")
         this.ns.tprintf(separator);
         this.contracts.forEach((contract, index) => {
-            const row = [contract.server, contract.type, index + 1, contract.triesRemaining]
+            const solution = typeof contract.solution === 'function' ? "✓" : "X";
+            const row = [contract.server, contract.type, index + 1, solution, contract.triesRemaining]
                 .map((value, index) => value.toString().padStart(paddings[index]))
                 .join("");
             this.ns.tprintf(row);
         });
     }
 }
+
 export async function main(ns) {
     const ctx = new Context(ns);
     ctx.log.logLevel = logLevel.debug;
@@ -169,7 +183,7 @@ export async function main(ns) {
     if (![1, 2].includes(ctx.ns.args.length)) {
         ctx.log.fatal("run contracts.js list|read|solve <#number>");
     }
-    const contracts = ctx.BredthFirstSearch().traverse(visitServer, "home", 10);
+    const contracts = ctx.BreadthFirstSearch().traverse(visitServer);
     contracts.sort((a, b) => (a.server > b.server) ? 1 : ((b.server > a.server) ? -1 : 0));
 
     const operation = ctx.ns.args[0];
