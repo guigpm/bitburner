@@ -29,6 +29,8 @@ export class Contract extends BaseContext {
                 return LargestPrimeFactor;
             case "Algorithmic Stock Trader I":
                 return AlgorithmicStockTraderI;
+            case "Algorithmic Stock Trader III":
+                return AlgorithmicStockTraderIII;
             case "Algorithmic Stock Trader IV":
                 return AlgorithmicStockTraderIV;
             default:
@@ -67,6 +69,17 @@ export class Contract extends BaseContext {
     }
 }
 
+class AlgorithmicStockTraderIII extends Contract {
+    solution(input) {
+        return new AlgorithmicStockTraderIV(this.ctx,
+            this.server,
+            this.filename,
+            this.type, this,
+            this.triesRemaining,
+            this.description,
+            input).solution([2, input]);
+    }
+}
 
 class AlgorithmicStockTraderIV extends Contract {
     /**
@@ -87,32 +100,37 @@ class AlgorithmicStockTraderIV extends Contract {
      * @returns {number} value of max profit
     */
     solution(input) {
-        const transactions = (input[0] ?? 0) * 1;
-        const prices = input[1] ?? [];
+        let i, j, k;
 
-        const days = prices.length;
+        let maxTrades = input[0];
+        let stockPrices = input[1];
 
-        if (days <= 1 || transactions == 0) {
-            return 0;
+        let highestProfit = [];
+        for (let i = 0; i < maxTrades; i++) {
+            highestProfit.push([]);
+            for (let j = 0; j < stockPrices.length; j++) {
+                highestProfit[i].push(0);
+            }
         }
 
-        // profit[transaction][day] stores the maximum profit gained by doing
-        // at most `transaction` transactions till `day`'th day
-        const profit = Array(transactions + 1).fill(Array(days).fill(0));
-
-        // fill profit[][] in a bottom-up fashion
-        for (let transaction = 0; transaction <= transactions; transaction++) {
-            let prevDiff = -Infinity;
-            for (let day = 0; day < days; day++) {
-                if (transaction == 0 || day == 0) {
-                    profit[transaction][day] = 0;
-                } else {
-                    prevDiff = Math.max(prevDiff, profit[transaction - 1][day - 1] - prices[day - 1]);
-                    profit[transaction][day] = Math.max(profit[transaction][day - 1], prices[day] + prevDiff);
+        for (i = 0; i < maxTrades; i++) {
+            for (j = 0; j < stockPrices.length; j++) { // Buy / Start
+                for (k = j; k < stockPrices.length; k++) { // Sell / End
+                    if (i > 0 && j > 0 && k > 0) {
+                        highestProfit[i][k] = Math.max(highestProfit[i][k], highestProfit[i - 1][k], highestProfit[i][k - 1], highestProfit[i - 1][j - 1] + stockPrices[k] - stockPrices[j]);
+                    } else if (i > 0 && j > 0) {
+                        highestProfit[i][k] = Math.max(highestProfit[i][k], highestProfit[i - 1][k], highestProfit[i - 1][j - 1] + stockPrices[k] - stockPrices[j]);
+                    } else if (i > 0 && k > 0) {
+                        highestProfit[i][k] = Math.max(highestProfit[i][k], highestProfit[i - 1][k], highestProfit[i][k - 1], stockPrices[k] - stockPrices[j]);
+                    } else if (j > 0 && k > 0) {
+                        highestProfit[i][k] = Math.max(highestProfit[i][k], highestProfit[i][k - 1], stockPrices[k] - stockPrices[j]);
+                    } else {
+                        highestProfit[i][k] = Math.max(highestProfit[i][k], stockPrices[k] - stockPrices[j]);
+                    }
                 }
             }
         }
-        return profit[transactions][days - 1];
+        return highestProfit[maxTrades - 1][stockPrices.length - 1];
     }
 }
 
