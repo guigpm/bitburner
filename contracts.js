@@ -25,6 +25,8 @@ class Contract extends BaseContext {
                 return UniquePathsInAGridI;
             case "Unique Paths in a Grid II":
                 return UniquePathsInAGridII;
+            case "Total Ways to Sum":
+                return TotalWaysToSum;
             default:
                 return Contract;
         }
@@ -58,6 +60,35 @@ class Contract extends BaseContext {
         else {
             this.ctx.log.warning(`Contract not submitted, not enough attempts left.`);
         }
+    }
+}
+
+class TotalWaysToSum extends Contract {
+    /**
+     * It is possible write four as a sum in exactly four different ways:
+        3 + 1
+        2 + 2
+        2 + 1 + 1
+        1 + 1 + 1 + 1
+        How many different distinct ways can the number 99 be written as a sum of at least two positive integers?
+
+        Uses dynamic programing: builds a solution array iterating over all the numbers from 1 to target and
+        computes how many combinations are possible using all the numbers from 1 to target-1
+     */
+    solution(targetNumber) {
+        const solutions = [];
+        for (let i = 0; i <= targetNumber; i++)
+            solutions.push(0);
+        solutions[0] = 1;
+        for (let upTo = 1; upTo < targetNumber; upTo++) {
+            for (let target = 1; target <= targetNumber; target++) {
+                if (target >= upTo) {
+                    // this.ctx.log.debug(`Distinct ways to reach ${target} using numbers from [1, ${upTo}]: ${solutions[target] + solutions[target - upTo]}`);
+                    solutions[target] = solutions[target] + solutions[target - upTo];
+                }
+            }
+        }
+        return solutions[targetNumber];
     }
 }
 
