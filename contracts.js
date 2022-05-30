@@ -27,6 +27,8 @@ class Contract extends BaseContext {
                 return UniquePathsInAGridII;
             case "Total Ways to Sum":
                 return TotalWaysToSum;
+            case "Find Largest Prime Factor":
+                return LargestPrimeFactor;
             default:
                 return Contract;
         }
@@ -60,6 +62,23 @@ class Contract extends BaseContext {
         else {
             this.ctx.log.warning(`Contract not submitted, not enough attempts left.`);
         }
+    }
+}
+
+class LargestPrimeFactor extends Contract {
+    // A prime factor is a factor that is a prime number.
+    // Factors of a number are always prime, iterate over possible factors keeping the highest seen
+    solution(target) {
+        let currentFactor = 2;
+        let largestFactor = -Infinity;
+        while (target > 1) {
+            while (target % currentFactor == 0) {
+                largestFactor = currentFactor;
+                target = target / currentFactor;
+            }
+            currentFactor += 1;
+        }
+        return largestFactor;
     }
 }
 
