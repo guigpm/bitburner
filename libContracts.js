@@ -33,6 +33,8 @@ export class Contract extends BaseContext {
                 return AlgorithmicStockTraderIII;
             case "Algorithmic Stock Trader IV":
                 return AlgorithmicStockTraderIV;
+            case "Minimum Path Sum in a Triangle":
+                return MinimumPathSumInATriangle;
             default:
                 return Contract;
         }
@@ -66,6 +68,71 @@ export class Contract extends BaseContext {
         else {
             this.ctx.log.warning(`Contract not submitted, not enough attempts left.`);
         }
+    }
+}
+
+class MinimumPathSumInATriangle extends Contract {
+    /**
+     * Given a triangle, find the minimum path sum from top to bottom. In each step of the path, you may only move to adjacent numbers in the row below. The triangle is represented as a 2D array of numbers:
+        [
+              [4],
+             [8,4],
+            [2,9,7]
+        ]
+
+        Example: If you are given the following triangle:
+
+        [
+            [2],
+           [3,4],
+          [6,5,7],
+         [4,1,8,3]
+        ]
+
+        The minimum path sum is 11 (2 -> 3 -> 5 -> 1).
+     */
+    node(value, row, column, pathCost, path) {
+        return {
+            "value": value,
+            "row": row,
+            "column": column,
+            "pathCost": pathCost,
+            "path": path,
+            "done": false
+        };
+    }
+    solution(triangle) {
+        const queue = [];
+        const lastRow = triangle.length - 1;
+        let shortestPath = Infinity;
+        queue.push(this.node(triangle[0][0], 0, 0, triangle[0][0], []));
+
+        while (queue.length) {
+            const current = queue.shift();
+            current.path.push(current.value);
+            if (current.row === lastRow) {
+                shortestPath = Math.min(shortestPath, current.pathCost);
+                continue;
+            }
+
+            const leftColumn = Math.max(0, current.column)
+            const rightColumn = Math.min(triangle[current.row + 1].length - 1, current.column + 1)
+            const left = this.node(triangle[current.row + 1][leftColumn],
+                current.row + 1,
+                leftColumn,
+                current.pathCost + triangle[current.row + 1][leftColumn],
+                current.path);
+            const right = this.node(triangle[current.row + 1][rightColumn],
+                current.row + 1,
+                rightColumn,
+                current.pathCost + triangle[current.row + 1][rightColumn],
+                current.path);
+            const adjacents = [left, right];
+            for (const adjacent of adjacents) {
+                queue.push(adjacent);
+            }
+        }
+        return shortestPath;
     }
 }
 
