@@ -47,7 +47,7 @@ export async function main(ns) {
     ctx.log.logLevel = logLevel.debug;
     if (ctx.ns.args.length != 1) {
         ctx.log.fatal("Usage: HACK|KILLALL|DEPLOY");
-        ctx.exit(1);
+        ctx.ns.exit(1);
     }
 
     const operation = ctx.ns.args[0].toLowerCase();
