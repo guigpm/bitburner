@@ -30,6 +30,8 @@ function parseInputMoney(text) {
         multiplier = 1000000;
     } else if (text.endsWith("b")) {
         multiplier = 1000000000;
+    } else if (text.endsWith("t")) {
+        multiplier = 1000000000000;
     }
     if (Number.isInteger(text[text.length - 1])) {
         return text * multiplier;
