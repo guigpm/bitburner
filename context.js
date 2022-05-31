@@ -2,7 +2,7 @@ import { BaseClass, BaseContext } from "./base";
 import { Invade } from "./invade";
 import { Log } from "./log";
 import { Process } from "./process"
-import { BreadthFirstSearch } from "./traversal";
+import { BreadthFirstSearch, DepthFirstSearch } from "./traversal";
 
 export class Context extends BaseClass {
     /** @type {Log} log */
@@ -39,6 +39,10 @@ export class Context extends BaseClass {
      */
     BreadthFirstSearch() {
         return this.factory(BreadthFirstSearch);
+    }
+
+    DepthFirstSearch() {
+        return this.factory(DepthFirstSearch);
     }
 
     /**
