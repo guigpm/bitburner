@@ -35,6 +35,10 @@ export class Contract extends BaseContext {
                 return AlgorithmicStockTraderIV;
             case "Minimum Path Sum in a Triangle":
                 return MinimumPathSumInATriangle;
+            case "Array Jumping Game":
+                return ArrayJumpingGame;
+            case "Sanitize Parentheses in Expression":
+                return SanitizeParenthesesInExpression;
             default:
                 return Contract;
         }
@@ -69,6 +73,88 @@ export class Contract extends BaseContext {
             this.ctx.log.warning(`Contract not submitted, not enough attempts left.`);
         }
     }
+}
+
+class SanitizeParenthesesInExpression extends Contract {
+    solution(input) {
+        // "()())()" -> [()()(), (())()]
+        // "(a)())()" -> [(a)()(), (a())()]
+        // "(()" -> fix(0, ())
+        // ")(" -> [""]
+
+        // ((())() -> [(())]
+        function valid(string) {
+            let openings = 0;
+            for (let i = 0; i < string.length; i++) {
+                const element = string[i];
+                if (element === "(") {
+                    openings += 1;
+                } else if (element === ")") {
+                    openings -= 1;
+                }
+                if (openings < 0) return false;
+            }
+            return openings === 0;
+        }
+        function fix(fixes, char, string, solutions) {
+            if (fixes === 0) {
+                if (valid(string))
+                    return string;
+                else
+                    return null;
+            }
+            for (let i = 0; i < string.length; i++) {
+                const element = string[i];
+                if (element === char) {
+                    const newString = string.slice(0, i) + string.slice(i + 1);
+                    const solution = fix(fixes - 1, char, newString, solutions);
+                    if (solution !== null && !solutions.includes(solution)) {
+                        solutions.push(solution);
+                    }
+                }
+            }
+            return null;
+        }
+
+        let openings = 0;
+        let closings = 0;
+        for (let i = 0; i < input.length; i++) {
+            const element = input[i];
+            if (element === "(") {
+                openings += 1;
+            } else if (element === ")") {
+                closings += 1;
+            }
+        }
+        const fixes = openings - closings;
+        // Negative remove ) Positive remove (
+        const char = fixes < 0 ? ")" : "(";
+        const solutions = [];
+        fix(Math.abs(fixes), char, input, solutions);
+        if (solutions.length === 0)
+            solutions.push("");
+        return solutions;
+    }
+}
+
+class ArrayJumpingGame extends Contract {
+    solution(input) {
+        if (input.length <= 1) return 1;
+        // 9, 0, 0, 9, 7, 0, 5, 0, 0, 8, 0, 6, 6, 2, 0, 9
+        function jump(start, jumpsleft, array) {
+            if (start + jumpsleft >= array.length) {
+                return 1;
+            }
+            for (let jumpSize = 1; jumpSize <= jumpsleft; jumpSize++) {
+                if (array[start + jumpSize] === 0) continue;
+                const reachEnd = jump(start + jumpSize, array[start + jumpSize], array);
+                if (reachEnd) return 1;
+            }
+            return 0;
+        }
+        return jump(0, input[0], input);
+    }
+
 }
 
 class MinimumPathSumInATriangle extends Contract {
