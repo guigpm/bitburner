@@ -1,4 +1,4 @@
-import { BaseClass } from './baseClass.js';
+import { BaseClass, BaseContext } from './base.js';
 
 export const logLevel = {
   'fatal': 'fatal',
@@ -9,7 +9,12 @@ export const logLevel = {
   'trace': 'trace',
 };
 
-export class Log extends BaseClass {
+export const printFns = {
+  "terminal": "tprintf",
+  "script": "printf"
+};
+
+export class Log extends BaseContext {
   logLevels = [
     logLevel.error,
     logLevel.warning,
@@ -18,7 +23,28 @@ export class Log extends BaseClass {
     logLevel.trace
   ];
 
-  actualLogLevel = 'info';
+  actualLogLevel = logLevel.info;
+  printFn = printFns.terminal;
+
+  /**
+   * @param {import("./NameSpace").NS} ns
+   * @param {string} fn
+   */
+  disableFunctionLog(fn) {
+    if (this.ns.isLogEnabled(fn)) {
+      this.ns.disableLog(fn);
+    }
+  }
+
+  /**
+   * @param {import("./NameSpace").NS} ns
+   * @param {string} fn
+   */
+  enableFunctionLog(fn) {
+    if (!this.ns.isLogEnabled(fn)) {
+      this.ns.enableLog(fn);
+    }
+  }
 
   /**
    * @param {string} level
@@ -38,12 +64,16 @@ export class Log extends BaseClass {
     return this.logLevels.indexOf(level) <= this.logLevels.indexOf(this.actualLogLevel);
   }
 
+  set logLevel(level) {
+    this.actualLogLevel = level;
+  }
+
   /**
    * @param {string} message
    * @param {string} origin
    */
   fatal(message, origin = this.ns.getHostname()) {
-    this.ns.tprintf(this.getMessage(message, 'fatal', origin));
+    this.ns[this.printFn](this.getMessage(message, 'fatal', origin));
     this.ns.exit(1);
   }
 
@@ -52,7 +82,7 @@ export class Log extends BaseClass {
    * @param {string} origin
    */
   error(message, origin = this.ns.getHostname()) {
-    this.ns.tprintf(this.getMessage(message, 'error', origin));
+    this.ns[this.printFn](this.getMessage(message, 'error', origin));
   }
 
   /**
@@ -61,7 +91,7 @@ export class Log extends BaseClass {
    */
   warning(message, origin = this.ns.getHostname()) {
     if (!this.inLogLevel('warning')) return;
-    this.ns.tprintf(this.getMessage(message, 'warning', origin));
+    this.ns[this.printFn](this.getMessage(message, 'warning', origin));
   }
 
   /**
@@ -70,7 +100,7 @@ export class Log extends BaseClass {
    */
   info(message, origin = this.ns.getHostname()) {
     if (!this.inLogLevel('info')) return;
-    this.ns.tprintf(this.getMessage(message, 'info', origin));
+    this.ns[this.printFn](this.getMessage(message, 'info', origin));
   }
 
   /**
@@ -79,7 +109,7 @@ export class Log extends BaseClass {
    */
   debug(message, origin = this.ns.getHostname()) {
     if (!this.inLogLevel('debug')) return;
-    this.ns.tprintf(this.getMessage(message, 'debug', origin));
+    this.ns[this.printFn](this.getMessage(message, 'debug', origin));
   }
 
   /**
@@ -88,7 +118,7 @@ export class Log extends BaseClass {
    */
   trace(message, origin = this.ns.getHostname()) {
     if (!this.inLogLevel('trace')) return;
-    this.ns.tprintf(this.getMessage(message, 'trace', origin));
+    this.ns[this.printFn](this.getMessage(message, 'trace', origin));
   }
 
   /**
@@ -119,81 +149,3 @@ export class Log extends BaseClass {
     );
   }
 }
-
-export const log = {
-  'logLevel': 'info',
-
-  /**
-   * 
-   * @param {import("./NameSpace").NS} ns 
-   * @param {string} message
-   * @param {string} logType
-   * @param {string} origin
-   */
-  'log': (ns, message, logType, origin = undefined) => {
-    const logClass = new Log(ns);
-    logClass.setLogLevel(log.logLevel);
-    logClass[logType](message, origin ?? ns.getHostname());
-  },
-
-  /**
-   * Log message and exit program
-   * 
-   * @param {import("./NameSpace").NS} ns 
-   * @param {string} message
-   * @param {string} origin
-   */
-  'fatal': (ns, message, origin = undefined) => {
-    log.log(ns, message, logLevel.fatal, origin ?? ns.getHostname());
-  },
-
-  /**
-   * 
-   * @param {import("./NameSpace").NS} ns 
-   * @param {string} message
-   * @param {string} origin
-   */
-  'error': (ns, message, origin = undefined) => {
-    log.log(ns, message, logLevel.error, origin ?? ns.getHostname());
-  },
-
-  /**
-   * 
-   * @param {import("./NameSpace").NS} ns 
-   * @param {string} message
-   * @param {string} origin
-   */
-  'warning': (ns, message, origin = undefined) => {
-    log.log(ns, message, logLevel.warning, origin ?? ns.getHostname());
-  },
-
-  /**
-   * 
-   * @param {import("./NameSpace").NS} ns 
-   * @param {string} message
-   * @param {string} origin
-   */
-  'info': (ns, message, origin = undefined) => {
-    log.log(ns, message, logLevel.info, origin ?? ns.getHostname());
-  },
-
-  /**
-   * 
-   * @param {import("./NameSpace").NS} ns 
-   * @param {string} message
-   * @param {string} origin
-   */
-  'debug': (ns, message, origin = undefined) => {
-    log.log(ns, message, logLevel.debug, origin ?? ns.getHostname());
-  },
-
-  /**
-   * 
-   * @param {import("./NameSpace").NS} ns 
-   * @param {string} message
-   * @param {string} origin
-   */
-  'trace': (ns, message, origin = undefined) => {
-    log.log(ns, message, logLevel.trace, origin ?? ns.getHostname());
-  }
-};

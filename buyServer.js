@@ -1,17 +1,17 @@
 import { formatMoney } from "./lib";
-import { log, logLevel } from "./log";
+import { logLevel } from "./log";
+import { Context } from "./context";
 
-/**
- * @param {import("./NameSpace").NS} ns
- */
+
 export async function main(ns) {
-    log.logLevel = logLevel.debug;
-    if (![2, 3].includes(ns.args.length)) {
-        log.fatal(ns, "Usage: <HostName> <RAM in GB|Max> <amount>");
+    const ctx = new Context(ns);
+    ctx.log.logLevel = logLevel.debug;
+    if (![2, 3].includes(ctx.ns.args.length)) {
+        ctx.log.fatal("Usage: <HostName> <RAM in GB|Max> <amount>");
     }
-    const hostName = ns.args[0];
-    let ram = ns.args[1];
-    const amount = ns.args[2] ?? 1;
+    const hostName = ctx.ns.args[0];
+    let ram = ctx.ns.args[1];
+    const amount = ctx.ns.args[2] ?? 1;
 
     const maxRam = 1048576; // 1024 Tb
     const ramString = `${ram}`.toLowerCase();
@@ -19,19 +19,19 @@ export async function main(ns) {
         ram = maxRam;
     } else if (ramString.endsWith('t') || ramString.endsWith('tb')) {
         ram = ramString.replace('tb', '').replace('t', '') * 1024;
-        log.debug(ns, `Ram ${ramString.toUpperCase()} => ${ram}GB`);
+        ctx.log.debug(`Ram ${ramString.toUpperCase()} => ${ram}GB`);
     }
     if (ram > 1048576) {
-        log.fatal(ns, `Max RAM size option is '${maxRam}'GB (or use 'Max' string).`);
+        ctx.log.fatal(`Max RAM size option is '${maxRam}'GB (or use 'Max' string).`);
     }
 
-    const newServerCost = formatMoney(ns, ns.getPurchasedServerCost(ram));
+    const newServerCost = formatMoney(ctx.ns, ctx.ns.getPurchasedServerCost(ram));
     for (let i = 0; i < amount; i++) {
-        const newHostName = ns.purchaseServer(hostName, ram);
+        const newHostName = ctx.ns.purchaseServer(hostName, ram);
         if (newHostName.length) {
-            log.debug(ns, `Server '${newHostName}' purchased. Paid ${newServerCost}`);
+            ctx.log.debug(`Server '${newHostName}' purchased. Paid ${newServerCost}`);
         } else {
-            log.error(ns, `No money to buy a server with '${ram}GB' RAM. Needs ${newServerCost}`);
+            ctx.log.error(`No money to buy a server with '${ram}GB' RAM. Needs ${newServerCost}`);
         }
     }
 }

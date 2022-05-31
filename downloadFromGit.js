@@ -6,7 +6,11 @@ export async function main(ns) {
   const gitData = JSON.parse(gitList);
 
   for (const file of gitData) {
-    if (file.name.endsWith('.js')) {await ns.wget(file.download_url, file.name);}
+    if (file.name.endsWith('.js')) {
+      ns.tprint(file.name);
+      await ns.wget(file.download_url, file.name);
+      await ns.sleep(100);
+    }
   }
 
   ns.rm(fileName);

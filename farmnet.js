@@ -1,5 +1,5 @@
-import { log } from "./log.js";
-import { disableFunctionLog, formatMoney } from "./lib.js";
+import { formatMoney } from "./lib.js";
+import { Context } from "./context";
 
 function partial(fn, ...fnArgs) {
     return () => {
@@ -14,11 +14,11 @@ function compareCost(a1, a2) {
     return a2;
 }
 
-function buildAction(ns, cost, action, log) {
+function buildAction(ctx, cost, action, log) {
     return {
         "cost": cost,
         "action": action,
-        "log": sprintf("%s: %s", log, formatMoney(ns, cost))
+        "log": sprintf("%s: %s", log, formatMoney(ctx.ns, cost))
     }
 }
 
@@ -37,31 +37,30 @@ function parseInputMoney(text) {
     return text.substring(0, text.length - 1) * multiplier;
 }
 
-/** @param {import("./NameSpace").NS} ns */
 export async function main(ns) {
-    const minMoney = ns.args.length == 0 ? 0 : parseInputMoney(ns.args[0]);
-    disableFunctionLog(ns, "sleep");
+    const ctx = new Context(ns);
+    const minMoney = ctx.ns.args.length == 0 ? 0 : parseInputMoney(ctx.ns.args[0]);
     while (true) {
         const actions = [];
-        if (ns.hacknet.numNodes() < ns.hacknet.maxNumNodes()) {
-            actions.push(buildAction(ns, ns.hacknet.getPurchaseNodeCost(), partial(ns.hacknet.purchaseNode), "New node"));
+        if (ctx.ns.hacknet.numNodes() < ctx.ns.hacknet.maxNumNodes()) {
+            actions.push(buildAction(ctx, ctx.ns.hacknet.getPurchaseNodeCost(), partial(ctx.ns.hacknet.purchaseNode), "New node"));
         }
-        for (let node = 0; node < ns.hacknet.numNodes(); node++) {
-            actions.push(buildAction(ns, ns.hacknet.getLevelUpgradeCost(node, 1), partial(ns.hacknet.upgradeLevel, node, 1), `New level on hacknet-node-${node}`));
-            actions.push(buildAction(ns, ns.hacknet.getRamUpgradeCost(node, 1), partial(ns.hacknet.upgradeRam, node, 1), `New RAM on hacknet-node-${node}`));
-            actions.push(buildAction(ns, ns.hacknet.getCoreUpgradeCost(node, 1), partial(ns.hacknet.upgradeCore, node, 1), `New core on hacknet-node-${node}`));
+        for (let node = 0; node < ctx.ns.hacknet.numNodes(); node++) {
+            actions.push(buildAction(ctx, ctx.ns.hacknet.getLevelUpgradeCost(node, 1), partial(ctx.ns.hacknet.upgradeLevel, node, 1), `New level on hacknet-node-${node}`));
+            actions.push(buildAction(ctx, ctx.ns.hacknet.getRamUpgradeCost(node, 1), partial(ctx.ns.hacknet.upgradeRam, node, 1), `New RAM on hacknet-node-${node}`));
+            actions.push(buildAction(ctx, ctx.ns.hacknet.getCoreUpgradeCost(node, 1), partial(ctx.ns.hacknet.upgradeCore, node, 1), `New core on hacknet-node-${node}`));
         }
         const bestAction = actions.reduce((accumlator, action) => compareCost(accumlator, action), null);
-        if (bestAction === null) log.fatal(ns, "No actions to take in hacknet");
+        if (bestAction === null) ctx.log.fatal("No actions to take in hacknet");
         if (bestAction.cost === Infinity) break;
-        while (ns.getServerMoneyAvailable("home") <= minMoney + bestAction.cost) {
-            await ns.sleep(5000);
+        while (ctx.ns.getServerMoneyAvailable("home") <= minMoney + bestAction.cost) {
+            await ctx.ns.sleep(5000);
         }
         const success = bestAction.action();
         if (success) {
-            log.info(ns, bestAction.log);
-            await ns.sleep(10);
+            ctx.log.info(bestAction.log);
+            await ctx.ns.sleep(10);
         }
     }
-    log.info(ns, "All hacknet nodes are maxxed out");
+    ctx.log.info("All hacknet nodes are maxxed out");
 }
