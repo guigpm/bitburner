@@ -29,7 +29,13 @@ async function own(ctx, target) {
 export async function startHack(ctx, target) {
     ctx.log.trace(`Start harvest on ${target}`);
     const threads = getMaxThreadsFromScript(ctx.ns, target, "harvest.js");
-    return ctx.Process("harvest.js", target).start(target, Math.min(threads, 1));
+    if (threads) {
+        return ctx.Process("harvest.js", target).start(target, 1);
+    } else if (ctx.ns.getServerMaxRam(target) <= 4 && ctx.ns.getServerMaxRam(target) >= 2) {
+        return ctx.Process("cheapHarvest.js", target).start(target, 1);
+    } else {
+        ctx.log.warning(`Can't run harvest|cheapHarvest on ${target}. No RAM.`);
+    }
 }
 
 /**
