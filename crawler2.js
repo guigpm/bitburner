@@ -5,6 +5,8 @@ import {
 } from './lib.js';
 import { logLevel } from './log.js';
 import { Context } from "./context";
+import { Invade } from "./invade";
+import { Process } from "./process";
 
 /**
  * @param {Context} ctx 
@@ -12,7 +14,7 @@ import { Context } from "./context";
  */
 async function own(ctx, target) {
     ctx.log.info(`Gaining Root Access on ${target}`);
-    const invade = ctx.Invade(target);
+    const invade = new Invade(ctx, target);
     if (invade.openPorts()) {
         invade.gainRootAccess();
         ctx.log.info(`Server ${target} owned`);
@@ -30,9 +32,9 @@ export async function startHack(ctx, target) {
     ctx.log.trace(`Start harvest on ${target}`);
     const threads = getMaxThreadsFromScript(ctx.ns, target, "harvest.js");
     if (threads) {
-        return ctx.Process("harvest.js", target).start(target, 1);
+        return new Process(ctx, "harvest.js", target).start(target, 1);
     } else if (ctx.ns.getServerMaxRam(target) <= 4 && ctx.ns.getServerMaxRam(target) >= 2) {
-        return ctx.Process("cheapHarvest.js", target).start(target, 1);
+        return new Process(ctx, "cheapHarvest.js", target).start(target, 1);
     } else {
         ctx.log.warning(`Can't run harvest|cheapHarvest on ${target}. No RAM.`);
     }
@@ -50,7 +52,7 @@ async function killall_target(ctx, target) {
 
 export async function main(ns) {
     const ctx = new Context(ns);
-    ctx.log.logLevel = logLevel.debug;
+    ctx.log.logLevel = logLevel.warning;
     if (ctx.ns.args.length != 1) {
         ctx.log.fatal("Usage: HACK|KILLALL|DEPLOY");
         ctx.ns.exit(1);

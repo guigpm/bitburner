@@ -1,6 +1,7 @@
 import { deploy, getMaxThreadsFromScript, growCondition, weakenCondition } from './lib.js';
 import { logLevel } from './log.js';
 import { Context } from "./context";
+import { Process } from "./process";
 
 export async function main(ns) {
   const ctx = new Context(ns);
@@ -17,7 +18,7 @@ export async function main(ns) {
   const hackThreads = getMaxThreadsFromScript(ctx.ns, executer, "hack.js");
   const harvestThreads = getMaxThreadsFromScript(ctx.ns, target, "harvest.js");
   const harvestRunning = ctx.ns.isRunning("harvest.js", target, target);
-  const harvestProcess = ctx.Process("harvest.js", target);
+  const harvestProcess = new Process(ctx, "harvest.js", target);
 
   if (harvestRunning) {
     ctx.log.info(`${target} Already running 'harvest.js'.`);
@@ -29,13 +30,13 @@ export async function main(ns) {
   while (true) {
     let process = undefined;
     if (weakenCondition(ctx.ns, target)) {
-      process = ctx.Process("weak.js", target).start(executer, weakThreads);
+      process = new Process(ctx, "weak.js", target).start(executer, weakThreads);
     } else if (growCondition(ctx.ns, target)) {
-      process = ctx.Process("grow.js", target).start(executer, growThreads);
+      process = new Process(ctx, "grow.js", target).start(executer, growThreads);
     } else if (!harvestRunning && !harvestProcess.isRunning) {
       // Machine was idle, hack since you prepared it and leave
       // Only when target doesnt have memory for harvest!
-      await ctx.Process("hack.js", target).start(executer, hackThreads).wait();
+      await new Process(ctx, "hack.js", target).start(executer, hackThreads).wait();
       return;
     } else {
       // Target already running harvest

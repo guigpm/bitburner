@@ -1,6 +1,8 @@
 import { serversWithinDistance } from './lib.js';
 import { logLevel } from './log.js';
 import { Context } from "./context";
+import { Invade } from "./invade";
+import { Process } from './process.js';
 
 export async function main(ns) {
   const ctx = new Context(ns);
@@ -28,7 +30,7 @@ export async function main(ns) {
   }
 
   do {
-    await ctx.Process("crawler2.js", "hack").startLocal(1).wait();
+    await new Process(ctx, "crawler2.js", "hack").startLocal(1).wait();
     const servers = serversWithinDistance(ctx.ns);
     const targets = servers.filter((server) => server !== "home" && filterExecuters(server).length == 0);
 
@@ -36,7 +38,7 @@ export async function main(ns) {
     for (const target of targets) {
       const activeExecuters = serversWithinDistance(ctx.ns, 1).filter((server) => filterExecuters(server).length > 0);
 
-      if (ctx.Invade(target).canBeHacked) {
+      if (new Invade(ctx, target).canBeHacked) {
         await breakServer(ctx, target, activeExecuters);
       }
     }
@@ -51,7 +53,7 @@ export async function main(ns) {
  * @param {string[]} executers List of servers name to execute action to break target server
  */
 async function breakServer(ctx, target, executers) {
-  const processes = executers.map(executer => ctx.Process("breakServer.js", executer, target).startLocal(1));
+  const processes = executers.map(executer => new Process(ctx, "breakServer.js", executer, target).startLocal(1));
   for (const process of processes) {
     await process.wait();
   }

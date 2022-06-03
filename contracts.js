@@ -2,6 +2,7 @@ import { BaseContext } from "./base";
 import { Context } from "./context";
 import { logLevel } from "./log";
 import { Contract } from "./libContracts";
+import { BreadthFirstSearch } from "./traversal";
 
 /**
  * @param {Context} ctx 
@@ -61,7 +62,7 @@ export async function main(ns) {
     if (![1, 2].includes(ctx.ns.args.length)) {
         ctx.log.fatal("run contracts.js list|read|solve <#number>");
     }
-    const contracts = ctx.BreadthFirstSearch().traverse(visitServer);
+    const contracts = new BreadthFirstSearch(ctx).traverse(visitServer);
     contracts.sort((a, b) => (a.server > b.server) ? 1 : ((b.server > a.server) ? -1 : 0));
 
     const operation = ctx.ns.args[0];

@@ -1,5 +1,6 @@
 import { getMaxThreads, growCondition, weakenCondition } from './lib.js';
 import { Context } from "./context";
+import { Process } from './process.js';
 
 export async function main(ns) {
   const ctx = new Context(ns);
@@ -19,13 +20,13 @@ export async function main(ns) {
   while (true) {
     let process = undefined;
     if (weakenCondition(ctx.ns, target)) {
-      process = ctx.Process("weak.js", target).start(target, weakThreads);
+      process = new Process(ctx, "weak.js", target).start(target, weakThreads);
       await ctx.ns.weaken(target);
     } else if (growCondition(ctx.ns, target)) {
-      process = ctx.Process("grow.js", target).start(target, growThreads);
+      process = new Process(ctx, "grow.js", target).start(target, growThreads);
       await ctx.ns.grow(target);
     } else {
-      process = ctx.Process("hack.js", target).start(target, hackThreads);
+      process = new Process(ctx, "hack.js", target).start(target, hackThreads);
       await ctx.ns.hack(target);
     }
     await process.wait();

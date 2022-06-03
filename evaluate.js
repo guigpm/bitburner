@@ -10,6 +10,7 @@ import {
 } from "./lib";
 import { logLevel } from "./log";
 import { Context } from "./context";
+import { Invade } from "./invade";
 
 class ServerRow {
     /** 
@@ -21,7 +22,7 @@ class ServerRow {
     constructor(ctx, server, player, availableMemoryGb) {
         this.ctx = ctx;
         this.server = server;
-        this.hackable = ctx.Invade(server.hostname).canBeHacked;
+        this.hackable = new Invade(ctx, server.hostname).canBeHacked;
         this.broken = !weakenCondition(this.ctx.ns, server.hostname) && !growCondition(this.ctx.ns, server.hostname)
         this.growth = server.serverGrowth;
         this.hackTimeInSeconds = ctx.ns.formulas.hacking.hackTime(server, player) / 1000;
