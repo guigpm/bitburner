@@ -47,5 +47,7 @@ export async function main(ns) {
       return;
     }
     await process.wait();
+    // Prevents UI freeze
+    await ctx.ns.sleep(100);
   }
 }

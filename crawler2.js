@@ -76,6 +76,8 @@ export async function main(ns) {
             continue;
         } else {
         }
+        // Prevents UI freeze
+        await ctx.ns.sleep(100);
     }
     ctx.log.debug(`Last line of ${ctx.ns.getScriptName()}`);
 }
