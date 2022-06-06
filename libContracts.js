@@ -29,6 +29,8 @@ export class Contract extends BaseContext {
                 return LargestPrimeFactor;
             case "Algorithmic Stock Trader I":
                 return AlgorithmicStockTraderI;
+            case "Algorithmic Stock Trader II":
+                return AlgorithmicStockTraderII;
             case "Algorithmic Stock Trader III":
                 return AlgorithmicStockTraderIII;
             case "Algorithmic Stock Trader IV":
@@ -219,6 +221,18 @@ class MinimumPathSumInATriangle extends Contract {
             }
         }
         return shortestPath;
+    }
+}
+
+class AlgorithmicStockTraderII extends Contract {
+    solution(input) {
+        return new AlgorithmicStockTraderIV(this.ctx,
+            this.server,
+            this.filename,
+            this.type, this,
+            this.triesRemaining,
+            this.description,
+            input).solution([999, input]);
     }
 }
 
