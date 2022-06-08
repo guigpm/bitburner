@@ -41,6 +41,8 @@ export class Contract extends BaseContext {
                 return ArrayJumpingGame;
             case "Sanitize Parentheses in Expression":
                 return SanitizeParenthesesInExpression;
+            case "Proper 2-Coloring of a Graph":
+                return Proper2ColoringOfAGraph;
             default:
                 return Contract;
         }
@@ -74,6 +76,97 @@ export class Contract extends BaseContext {
         else {
             this.ctx.log.warning(`Contract not submitted, not enough attempts left.`);
         }
+    }
+}
+
+class Proper2ColoringOfAGraph extends Contract {
+    solution(input) {
+        // You are given the following data, representing a graph:
+        //         [9, [[3, 5], [2, 3], [1, 7], [7, 8], [2, 8], [5, 8], [2, 3], [4, 7], [6, 8], [4, 5], [1, 6]]]
+        //  Note that "graph", as used here, refers to the field of graph theory, and has no relation to statistics or
+        // plotting.The first element of the data represents the number of vertices in the graph. 
+        // Each vertex is a unique number between 0 and 8. The next element of the data represents the edges of the
+        // graph. Two vertices u, v in a graph are said to be adjacent if there exists an edge[u, v]. 
+        // Note that an edge[u, v] is the same as an edge[v, u], as order does not matter.
+        // You must construct a 2 - coloring of the graph, meaning that you have to assign each vertex in the
+        // graph a "color", either 0 or 1, such that no two adjacent vertices have the same color.
+        // Submit your answer in the form of an array, where element i represents the color of vertex i.
+        // If it is impossible to construct a 2 - coloring of the given graph, instead submit an empty array.
+
+        //             Examples:
+
+        //         Input: [4, [[0, 2], [0, 3], [1, 2], [1, 3]]]
+        //         Output: [0, 0, 1, 1]
+
+        //         Input: [3, [[0, 1], [0, 2], [1, 2]]]
+        //         Output: []
+        function buildGraph(input) {
+            const graph = {};
+            for (let i = 0; i < input[0]; i++) {
+                graph[i] = {
+                    "id": i,
+                    "color": undefined,
+                    "adjacents": []
+                };
+            }
+            for (let i = 0; i < input[1].length; i++) {
+                const description = input[1][i];
+                const vertex = description[0];
+                const edge = description[1];
+                graph[vertex].adjacents.push(edge);
+                graph[edge].adjacents.push(vertex);
+            }
+            return graph;
+        }
+        function adjacentColors(graph, node) {
+            return node.adjacents.map((adjacent) => {
+                return graph[adjacent].color;
+            });
+        }
+        function firstAvailableColor(usedColors) {
+            for (const color of [0, 1]) {
+                if (!usedColors.includes(color)) {
+                    return color;
+                }
+            }
+            return null;
+        }
+        function color(input) {
+            const graph = buildGraph(input);
+            for (let i = 0; i < input[0]; i++) {
+                const start = graph[i];
+                if (start.color === undefined) {
+                    const queue = [];
+                    queue.push(start);
+                    while (queue.length) {
+                        const node = queue.shift();
+                        const usedColors = adjacentColors(graph, node);
+                        const availableColor = firstAvailableColor(usedColors);
+                        if (availableColor === null) {
+                            return [];
+                        } else {
+                            node.color = availableColor;
+                        }
+                        for (let j = 0; j < node.adjacents.length; j++) {
+                            const adjacent = graph[node.adjacents[j]];
+                            if (adjacent.color === undefined) {
+                                queue.push(graph[node.adjacents[j]]);
+                            }
+                        }
+                    }
+                }
+            }
+            return graph;
+        }
+        const colorizedGraph = color(input);
+        const colors = [];
+        for (const [id, node] of Object.entries(colorizedGraph)) {
+            colors.push(node.color);
+        }
+        // Remove line below when this issue is resolved: https://github.com/danielyxie/bitburner/issues/3755
+        // Code: https://github.com/danielyxie/bitburner/blob/dev/src/data/codingcontracttypes.ts#L1387
+        if (colors.length == 0) return "[]";
+        return colors;
     }
 }
 
