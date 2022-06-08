@@ -213,6 +213,11 @@ class SanitizeParenthesesInExpression extends Contract {
 
         let openings = 0;
         let closings = 0;
+        let i = 0;
+        let j = input.length - 1;
+        while (input[i] == ")") i++;
+        while (input[j] == "(") j--;
+        input = input.substring(i, j + 1);
         for (let i = 0; i < input.length; i++) {
             const element = input[i];
             if (element === "(") {
