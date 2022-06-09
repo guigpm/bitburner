@@ -171,6 +171,10 @@ class Proper2ColoringOfAGraph extends Contract {
 }
 
 class SanitizeParenthesesInExpression extends Contract {
+    /**
+     * @param {string} input
+     * @returns {string[]}
+     */
     solution(input) {
         // "()())()" -> [()()(), (())()]
         // "(a)())()" -> [(a)()(), (a())()]
@@ -178,6 +182,25 @@ class SanitizeParenthesesInExpression extends Contract {
         // ")(" -> [""]
 
         // ((())() -> [(())]
+        // ))(((((a())aa))a))( -> (((((a())aa))a))
+
+        /**
+         * @param {string} string
+         * @returns {string}
+         */
+        function trim(string) {
+            while (string.startsWith(')')) {
+                string = string.substring(1);
+            }
+            while (string.endsWith('(')) {
+                string = string.substring(0, string.length - 1);
+            }
+            return string;
+        }
+        /**
+         * @param {string} string
+         * @returns {boolean}
+         */
         function valid(string) {
             let openings = 0;
             for (let i = 0; i < string.length; i++) {
@@ -187,16 +210,26 @@ class SanitizeParenthesesInExpression extends Contract {
                 } else if (element === ")") {
                     openings -= 1;
                 }
-                if (openings < 0) return false;
+                if (openings < 0) {
+                    return false;
+                }
             }
             return openings === 0;
         }
+        /**
+         * @param {int} fixes
+         * @param {string} char needs to be removed ")" or "("
+         * @param {string} string with input data
+         * @param {string[]} solutions will be populated
+         * @returns {string|null}
+         */
         function fix(fixes, char, string, solutions) {
             if (fixes === 0) {
-                if (valid(string))
+                if (valid(string)) {
                     return string;
-                else
+                } else {
                     return null;
+                }
             }
             for (let i = 0; i < string.length; i++) {
                 const element = string[i];
@@ -209,6 +242,11 @@ class SanitizeParenthesesInExpression extends Contract {
                 }
             }
             return null;
+        }
+
+        input = trim(input);
+        if (valid(input) || !input.length) {
+            return [input];
         }
 
         let openings = 0;
@@ -230,9 +268,13 @@ class SanitizeParenthesesInExpression extends Contract {
         // Negative remove ) Positive remove (
         const char = fixes < 0 ? ")" : "(";
         const solutions = [];
-        fix(Math.abs(fixes), char, input, solutions);
-        if (solutions.length === 0)
+        const solution = fix(Math.abs(fixes), char, input, solutions);
+        if (solution !== null && !solutions.includes(solution)) {
+            solutions.push(solution);
+        }
+        if (solutions.length === 0) {
             solutions.push("");
+        }
         return solutions;
     }
 }
