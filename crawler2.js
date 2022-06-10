@@ -3,7 +3,7 @@ import {
 } from './lib.js';
 import { logLevel } from './log.js';
 import { Context } from "./context";
-import { Target } from "./invade";
+import { InvasionTarget } from "./invade";
 
 export async function main(ns) {
     const ctx = new Context(ns);
@@ -19,7 +19,7 @@ export async function main(ns) {
             adjacent => !adjacent.startsWith("home-")
                 && adjacent != "home"
                 && adjacent != ctx.ns.getHostname())
-        .map((hostname) => new Target(ctx, hostname));
+        .map((hostname) => new InvasionTarget(ctx, hostname));
 
     for (const target of adjacents) {
         target.own();

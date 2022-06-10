@@ -1,7 +1,7 @@
 import { serversWithinDistance } from './lib.js';
 import { logLevel } from './log.js';
 import { Context } from "./context";
-import { Invade } from "./invade";
+import { InvasionTarget } from "./invade";
 import { Process } from './process.js';
 
 export async function main(ns) {
@@ -38,7 +38,7 @@ export async function main(ns) {
     for (const target of targets) {
       const activeExecuters = serversWithinDistance(ctx.ns, 1).filter((server) => filterExecuters(server).length > 0);
 
-      if (new Invade(ctx, target).canBeHacked) {
+      if (new InvasionTarget(ctx, target).canBeHacked) {
         await breakServer(ctx, target, activeExecuters);
       }
     }
