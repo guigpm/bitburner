@@ -67,7 +67,7 @@ export class Contract extends BaseContext {
             const reward = this.ns.codingcontract.attempt(answer, this.filename, this.server, { "returnReward": true });
 
             if (reward.length === 0) {
-                this.ctx.log.error(`Wrong answer: ${answer} (input=${this.input}) Attempts left ${this.triesRemaining - 1}`);
+                this.ctx.log.error(`Wrong answer: ${answer} input=${this.input} Attempts left ${this.triesRemaining - 1}`);
             }
             else {
                 this.ns.tprint(`SUCCESS! ${reward}`);
@@ -223,19 +223,32 @@ class SanitizeParenthesesInExpression extends Contract {
          * @param {string[]} solutions will be populated
          * @returns {string|null}
          */
-        function fix(fixes, char, string, solutions) {
-            if (fixes === 0) {
+        function fix(opening, closing, string, solutions) {
+            if (opening === 0 && closing === 0) {
                 if (valid(string)) {
                     return string;
                 } else {
                     return null;
                 }
             }
+            // Negative remove ) Positive remove (
+            let char = ")";
+            if (opening > 0) {
+                char = "(";
+            } else if (closing > 0) {
+                char = ")";
+            }
+
             for (let i = 0; i < string.length; i++) {
                 const element = string[i];
                 if (element === char) {
                     const newString = string.slice(0, i) + string.slice(i + 1);
-                    const solution = fix(fixes - 1, char, newString, solutions);
+                    let solution;
+                    if (opening > 0) {
+                        solution = fix(opening - 1, closing, newString, solutions)
+                    } else if (closing > 0) {
+                        solution = fix(opening, closing - 1, newString, solutions)
+                    }
                     if (solution !== null && !solutions.includes(solution)) {
                         solutions.push(solution);
                     }
@@ -255,14 +268,15 @@ class SanitizeParenthesesInExpression extends Contract {
             if (element === "(") {
                 openings += 1;
             } else if (element === ")") {
-                closings += 1;
+                if (openings > 0) {
+                    openings -= 1;
+                } else {
+                    closings += 1;
+                }
             }
         }
-        const fixes = openings - closings;
-        // Negative remove ) Positive remove (
-        const char = fixes < 0 ? ")" : "(";
         const solutions = [];
-        const solution = fix(Math.abs(fixes), char, input, solutions);
+        const solution = fix(openings, closings, input, solutions);
         if (solution !== null && !solutions.includes(solution)) {
             solutions.push(solution);
         }
