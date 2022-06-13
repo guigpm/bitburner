@@ -27,6 +27,8 @@ export class Contract extends BaseContext {
                 return UniquePathsInAGridII;
             case "Total Ways to Sum":
                 return TotalWaysToSum;
+            case "Find All Valid Math Expressions":
+                return FindAllValidMathExpressions;
             case "Find Largest Prime Factor":
                 return LargestPrimeFactor;
             case "Algorithmic Stock Trader I":
@@ -78,6 +80,79 @@ export class Contract extends BaseContext {
         else {
             this.ctx.log.warning(`Contract not submitted, not enough attempts left.`);
         }
+    }
+}
+
+class FindAllValidMathExpressions extends Contract {
+    // You are given the following string which contains only digits between 0 and 9:
+
+    // 2705804
+
+    // You are also given a target number of - 45. Return all possible ways you can add the + (add), -(subtract), and * (multiply) operators to the string such that it evaluates to the target number. (Normal order of operations applies.)
+
+    // The provided answer should be an array of strings containing the valid expressions.The data provided by this problem is an array with two elements.The first element is the string of digits, while the second element is the target number:
+
+    // ["2705804", -45]
+
+    // NOTE: The order of evaluation expects script operator precedence NOTE: Numbers in the expression cannot have leading 0's. In other words, "1+01" is not a valid expression Examples:
+
+    // Input: digits = "123", target = 6
+    // Output: [1 + 2 + 3, 1 * 2 * 3]
+
+    // Input: digits = "105", target = 5
+    // Output: [1 * 0 + 5, 10 - 5]
+    // Copied from here: https://leetcode.com/problems/expression-add-operators/solution/
+    solution(_input) {
+        const input = _input[0];
+        const target = _input[1];
+        const answers = [];
+        function recurse(index, prev_operand, current_operand, value, string, answers) {
+            if (index == input.length) {
+                // If the final value == target expected AND
+                // no operand is left unprocessed
+                if (value == target && current_operand == 0) {
+                    answers.push(string.slice(1, string.length).join(""));
+                }
+                return;
+            }
+
+            // Extending the current operand by one digit
+            current_operand = current_operand * 10 + parseInt(input[index]);
+            const str_op = current_operand.toString();
+
+            // To avoid cases where we have 1 + 05 or 1 * 05 since 05 won't be a
+            // valid operand.Hence this check
+            if (current_operand > 0) {
+                // NO OP recursion
+                recurse(index + 1, prev_operand, current_operand, value, string, answers);
+            }
+
+            // ADDITION
+            string.push('+');
+            string.push(str_op);
+            recurse(index + 1, current_operand, 0, value + current_operand, string, answers)
+            string.pop();
+            string.pop();
+
+            // Can subtract or multiply only if there are some previous operands
+            if (string.length) {
+                // SUBTRACTION
+                string.push('-');
+                string.push(str_op);
+                recurse(index + 1, -current_operand, 0, value - current_operand, string, answers);
+                string.pop();
+                string.pop();
+
+                // MULTIPLICATION
+                string.push('*');
+                string.push(str_op);
+                recurse(index + 1, current_operand * prev_operand, 0, value - prev_operand + (current_operand * prev_operand), string, answers);
+                string.pop();
+                string.pop();
+            }
+        }
+        recurse(0, 0, 0, 0, [], answers);
+        return answers;
     }
 }
 
