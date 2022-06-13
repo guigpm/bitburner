@@ -47,6 +47,8 @@ export class Contract extends BaseContext {
                 return SanitizeParenthesesInExpression;
             case "Proper 2-Coloring of a Graph":
                 return Proper2ColoringOfAGraph;
+            case "Shortest Path in a Grid":
+                return ShortestPathInAGrid;
             default:
                 return Contract;
         }
@@ -80,6 +82,56 @@ export class Contract extends BaseContext {
         else {
             this.ctx.log.warning(`Contract not submitted, not enough attempts left.`);
         }
+    }
+}
+
+class ShortestPathInAGrid extends Contract {
+    position(x, y) {
+        return { "x": x, "y": y };
+    }
+    iteration(position, path) {
+        return { "position": position, "path": path };
+    }
+    valid(position, grid) {
+        const rows = grid.length;
+        const columns = grid[0].length;
+
+        const withinX = position.x >= 0 && position.x < rows;
+        const withinY = position.y >= 0 && position.y < columns;
+        if (!withinX || !withinY) return false;
+        const unblocked = grid[position.x][position.y] == 0;
+        return unblocked;
+    }
+    solution(grid) {
+        const rows = grid.length;
+        const columns = grid[0].length;
+        const target = this.position(rows - 1, columns - 1);
+        const start = this.position(0, 0);
+        const queue = [];
+        const offsets = {
+            "D": [1, 0],
+            "U": [-1, 0],
+            "R": [0, 1],
+            "L": [0, -1]
+        }
+        queue.push(this.iteration(start, []));
+        while (queue.length) {
+            const current = queue.shift();
+            const path = current.path;
+            grid[current.position.x][current.position.y] = 1;
+            if (current.position.x == target.x && current.position.y == target.y) {
+                return path.join("");
+            }
+            for (let direction of ["D", "U", "R", "L"]) {
+                const offsetX = offsets[direction][0];
+                const offsetY = offsets[direction][1];
+                const adjacent = this.position(current.position.x + offsetX, current.position.y + offsetY);
+                if (this.valid(adjacent, grid)) {
+                    queue.push(this.iteration(adjacent, path.concat(direction)));
+                }
+            }
+        }
+        return "";
     }
 }
 
