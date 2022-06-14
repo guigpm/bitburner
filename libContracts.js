@@ -51,6 +51,8 @@ export class Contract extends BaseContext {
                 return ShortestPathInAGrid;
             case "Merge Overlapping Intervals":
                 return MergeOverlappingIntervals;
+            case "Subarray with Maximum Sum":
+                return SubarrayWithMaximumSum;
             default:
                 return Contract;
         }
@@ -87,6 +89,19 @@ export class Contract extends BaseContext {
     }
 }
 
+class SubarrayWithMaximumSum extends Contract {
+    solution(nums) {
+        let current = nums[0];
+        let maxSum = nums[0];
+
+        for (let i = 1; i < nums.length; i++) {
+            const num = nums[i];
+            current = Math.max(num, current + num);
+            maxSum = Math.max(maxSum, current);
+        }
+        return maxSum;
+    }
+}
 
 class MergeOverlappingIntervals extends Contract {
     solution(input) {
