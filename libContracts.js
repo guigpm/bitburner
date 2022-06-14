@@ -49,6 +49,8 @@ export class Contract extends BaseContext {
                 return Proper2ColoringOfAGraph;
             case "Shortest Path in a Grid":
                 return ShortestPathInAGrid;
+            case "Merge Overlapping Intervals":
+                return MergeOverlappingIntervals;
             default:
                 return Contract;
         }
@@ -82,6 +84,31 @@ export class Contract extends BaseContext {
         else {
             this.ctx.log.warning(`Contract not submitted, not enough attempts left.`);
         }
+    }
+}
+
+
+class MergeOverlappingIntervals extends Contract {
+    solution(input) {
+        function overlap(a, b) {
+            return a[1] >= b[0];
+        }
+        function merge(a, b) {
+            return [Math.min(a[0], b[0]), Math.max(a[1], b[1])];
+        }
+        input.sort((a, b) => a[0] - b[0])
+        const merged = [];
+        for (let i = 0; i < input.length; i++) {
+            const lastPosition = merged.length - 1;
+            const interval = input[i];
+            if (merged.length == 0 || !overlap(merged[lastPosition], interval)) {
+                merged.push(interval);
+            }
+            else {
+                merged[lastPosition] = merge(interval, merged[lastPosition]);
+            }
+        }
+        return merged;
     }
 }
 
