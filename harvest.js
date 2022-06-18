@@ -12,21 +12,22 @@ export async function main(ns) {
   }
 
   var target = ctx.ns.args[0];
+  const hostName = ctx.ns.getHostname();
 
-  const weakThreads = getMaxThreads(ctx.ns, target, 1.75);
-  const growThreads = getMaxThreads(ctx.ns, target, 1.75);
-  const hackThreads = getMaxThreads(ctx.ns, target, 1.7);
+  const weakThreads = getMaxThreads(ctx.ns, hostName, 1.75, 2);
+  const growThreads = getMaxThreads(ctx.ns, hostName, 1.75, 2);
+  const hackThreads = getMaxThreads(ctx.ns, hostName, 1.7, 2);
 
   while (true) {
     let process = undefined;
     if (weakenCondition(ctx.ns, target)) {
-      process = new Process(ctx, "weak.js", target).start(target, weakThreads);
+      process = new Process(ctx, "weak.js", target).start(hostName, weakThreads);
       await ctx.ns.weaken(target);
     } else if (growCondition(ctx.ns, target)) {
-      process = new Process(ctx, "grow.js", target).start(target, growThreads);
+      process = new Process(ctx, "grow.js", target).start(hostName, growThreads);
       await ctx.ns.grow(target);
     } else {
-      process = new Process(ctx, "hack.js", target).start(target, hackThreads);
+      process = new Process(ctx, "hack.js", target).start(hostName, hackThreads);
       await ctx.ns.hack(target);
     }
     await process.wait();
