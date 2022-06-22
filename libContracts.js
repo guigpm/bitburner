@@ -53,6 +53,8 @@ export class Contract extends BaseContext {
                 return MergeOverlappingIntervals;
             case "Subarray with Maximum Sum":
                 return SubarrayWithMaximumSum;
+            case "Spiralize Matrix":
+                return SpiralizeMatrix;
             default:
                 return Contract;
         }
@@ -88,6 +90,55 @@ export class Contract extends BaseContext {
         }
     }
 }
+class SpiralizeMatrix extends Contract {
+    solution(matrix) {
+        const rows = matrix.length
+        const columns = matrix[0].length
+        let top = 0
+        let bottom = rows - 1
+        let left = 0
+        let right = columns - 1
+
+        const spiralOrder = []
+        let direction = 0
+        // 0 = left to right
+        // 1 = top to bottom
+        // 2 = right to left
+        // 3 = bottom to top
+        while (top <= bottom && left <= right) {
+            if (direction == 0) {
+                for (let i = left; i <= right; i++) {
+                    spiralOrder.push(matrix[top][i])
+                }
+                top += 1
+                direction = 1
+            }
+            else if (direction == 1) {
+                for (let i = top; i <= bottom; i++) {
+                    spiralOrder.push(matrix[i][right])
+                }
+                right -= 1
+                direction = 2
+            }
+            else if (direction == 2) {
+                for (let i = right; i >= left; i--) {
+                    spiralOrder.push(matrix[bottom][i])
+                }
+                bottom -= 1
+                direction = 3
+            }
+            else if (direction == 3) {
+                for (let i = bottom; i >= top; i--) {
+                    spiralOrder.push(matrix[i][left])
+                }
+                left += 1
+                direction = 0
+            }
+        }
+        return spiralOrder
+    }
+}
+
 
 class SubarrayWithMaximumSum extends Contract {
     solution(nums) {
