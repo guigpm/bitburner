@@ -176,4 +176,19 @@ export function formatMoney(ns, value) {
   return ns.nFormat(value, '$0.000a');
 }
 
+/** 
+ * @param {number} value 
+ * @returns {string}
+ */
+export function formatRam(valueInGb) {
+  if (valueInGb >= 1024) {
+    const valueInTb = valueInGb / 1024
+    if (valueInTb >= 1024) {
+      return `1pb`
+    }
+    return `${valueInTb}tb`
+  }
+  return `${valueInGb}gb`
+}
+
 export class Lib { }

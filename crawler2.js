@@ -16,7 +16,7 @@ export async function main(ns) {
     const operation = ctx.ns.args[0].toLowerCase();
     const adjacents = serversWithinDistance(ctx.ns)
         .filter(
-            adjacent => !adjacent.startsWith("home-")
+            adjacent => !adjacent.startsWith(ctx.homeMachinePrefix)
                 && adjacent != "home"
                 && adjacent != ctx.ns.getHostname())
         .map((hostname) => new InvasionTarget(ctx, hostname));

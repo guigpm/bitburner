@@ -7,7 +7,7 @@ import { Process } from './process.js';
 export async function main(ns) {
   const ctx = new Context(ns);
   ctx.log.logLevel = logLevel.error;
-  let executerServerNames = ["home-"];
+  let executerServerNames = [ctx.homeMachinePrefix];
   let unstopableExecution = false;
   if (ctx.ns.args.length > 0) {
     const firstElement = ctx.ns.args.shift();

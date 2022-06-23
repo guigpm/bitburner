@@ -4,6 +4,9 @@ import { Log } from "./log";
 export class Context extends BaseClass {
     /** @type {Log} log */
     log = undefined;
+    maxHomeMachines = 25;
+    homeMachinePrefix = "home-";
+
 
     constructor(ns) {
         super(ns);
