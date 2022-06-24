@@ -23,7 +23,7 @@ export class Context extends BaseClass {
 
 export async function main(ns) {
   const ctx = new Context(ns);
-
+  ctx.log.logLevel = logLevel.error;
   if (ctx.ns.args.length != 1) {
     ctx.log.fatal();
     ctx.ns.tprint("Missing argument 0: <target>")

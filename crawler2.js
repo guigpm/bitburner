@@ -7,7 +7,7 @@ import { InvasionTarget } from "./invade";
 
 export async function main(ns) {
     const ctx = new Context(ns);
-    ctx.log.logLevel = logLevel.warning;
+    ctx.log.logLevel = logLevel.error;
     if (ctx.ns.args.length != 1) {
         ctx.log.fatal("Usage: HACK|KILLALL|DEPLOY");
         ctx.ns.exit(1);

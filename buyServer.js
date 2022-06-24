@@ -11,7 +11,7 @@ export async function main(ns) {
     let minRam = ctx.ns.args[0] ?? 32; // 32gb
     let desiredMachineCount = ctx.ns.args[1] ?? ctx.maxHomeMachines;
     let moneyAvailable = ctx.ns.getServerMoneyAvailable("home")
-    const homeMachinesCount = ctx.ns.scan("home").filter((hostname) => hostname.startsWith(hostnamePrefix)).length
+    const homeMachinesCount = ctx.ns.scan("home").filter((hostname) => hostname.startsWith(ctx.homeMachinePrefix)).length
     const machinesAvailable = Math.max(0, ctx.maxHomeMachines - homeMachinesCount)
     if (machinesAvailable == 0) return
     if (desiredMachineCount > machinesAvailable) {
