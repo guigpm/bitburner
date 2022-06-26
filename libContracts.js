@@ -43,6 +43,8 @@ export class Contract extends BaseContext {
                 return MinimumPathSumInATriangle;
             case "Array Jumping Game":
                 return ArrayJumpingGame;
+            case "Array Jumping Game II":
+                return ArrayJumpingGameII;
             case "Sanitize Parentheses in Expression":
                 return SanitizeParenthesesInExpression;
             case "Proper 2-Coloring of a Graph":
@@ -598,7 +600,25 @@ class ArrayJumpingGame extends Contract {
         }
         return jump(0, input[0], input);
     }
+}
 
+class ArrayJumpingGameII extends Contract {
+    solution(input) {
+        let jumps = 0
+        let current_jump_end = 0
+        let farthest = 0
+        for (let i = 0; i < input.length - 1; i++) {
+            farthest = Math.max(farthest, i + input[i])
+            if (i == current_jump_end) {
+                // No solution
+                if (farthest == i && input[i] == 0)
+                    return 0;
+                jumps += 1
+                current_jump_end = farthest
+            }
+        }
+        return jumps
+    }
 }
 
 class MinimumPathSumInATriangle extends Contract {
