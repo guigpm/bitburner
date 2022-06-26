@@ -55,6 +55,8 @@ export class Contract extends BaseContext {
                 return SubarrayWithMaximumSum;
             case "Spiralize Matrix":
                 return SpiralizeMatrix;
+            case "Compression I: RLE Compression":
+                return CompressionIRLECompression;
             default:
                 return Contract;
         }
@@ -90,6 +92,41 @@ export class Contract extends BaseContext {
         }
     }
 }
+
+class CompressionIRLECompression extends Contract {
+    encode(encoded, counter, previous) {
+        const blocksOf9 = Math.floor(counter / 9);
+        const remainder = counter % 9;
+        for (let j = 0; j < blocksOf9; j++) {
+            encoded.push(9);
+            encoded.push(previous);
+        }
+        if (remainder > 0) {
+            encoded.push(remainder);
+            encoded.push(previous);
+        }
+        return encoded
+    }
+    solution(data) {
+        debugger
+        let previous = data[0];
+        let counter = 0;
+        const encoded = [];
+        for (let i = 0; i < data.length; i++) {
+            const current = data[i];
+            if (current == previous) {
+                counter += 1;
+            } else {
+                this.encode(encoded, counter, previous);
+                counter = 1;
+            }
+            previous = current;
+        }
+        this.encode(encoded, counter, previous);
+        return encoded.join("")
+    }
+}
+
 class SpiralizeMatrix extends Contract {
     solution(matrix) {
         const rows = matrix.length
