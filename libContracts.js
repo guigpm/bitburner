@@ -27,6 +27,8 @@ export class Contract extends BaseContext {
                 return UniquePathsInAGridII;
             case "Total Ways to Sum":
                 return TotalWaysToSum;
+            case "Total Ways to Sum II":
+                return TotalWaysToSumII;
             case "Find All Valid Math Expressions":
                 return FindAllValidMathExpressions;
             case "Find Largest Prime Factor":
@@ -1086,6 +1088,22 @@ class TotalWaysToSum extends Contract {
             }
         }
         return solutions[targetNumber];
+    }
+}
+
+class TotalWaysToSumII extends Contract {
+    solution(data) {
+        const n = data[0];
+        const s = data[1];
+        const ways = [1];
+        ways.length = n + 1;
+        ways.fill(0, 1);
+        for (let i = 0; i < s.length; i++) {
+            for (let j = s[i]; j <= n; j++) {
+                ways[j] += ways[j - s[i]];
+            }
+        }
+        return ways[n];
     }
 }
 
