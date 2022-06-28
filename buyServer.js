@@ -2,14 +2,29 @@ import { formatMoney, formatRam } from "./lib";
 import { logLevel } from "./log";
 import { Context } from "./context";
 
+function ramStringIntoGB(ramStr) {
+    const ramString = `${ramStr}`.toLowerCase();
+    let ramInGb;
+    if (ramString.endsWith("t") || ramString.endsWith("tb")) {
+        ramInGb = ramString.replace("tb", "").replace("t", "") * 1024;
+    } else if (ramString.endsWith("g") || ramString.endsWith("gb")) {
+        ramInGb = ramString.replace("gb", "").replace("g", "");
+    }
+    if (ramInGb > 1048576) {
+        ctx.log.fatal(`Max RAM size option is "${maxRam}"GB (or use "Max" string).`);
+    }
+    return ramInGb
+}
+
 export async function main(ns) {
     const ctx = new Context(ns);
     ctx.log.logLevel = logLevel.debug;
-    if (![1, 2].includes(ctx.ns.args.length)) {
-        ctx.log.fatal("Usage: <Min RAM in GB|max> <amount>");
+    if (![2, 3].includes(ctx.ns.args.length)) {
+        ctx.log.fatal("Usage: <amount> <Min RAM in GB> <Max RAM in GB> ");
     }
-    let minRam = ctx.ns.args[0] ?? 32; // 32gb
-    let desiredMachineCount = ctx.ns.args[1] ?? ctx.maxHomeMachines;
+    let desiredMachineCount = ctx.ns.args[0] ?? ctx.maxHomeMachines
+    const minRam = ramStringIntoGB(ctx.ns.args[1] ?? "32gb")
+    const maxRam = ramStringIntoGB(ctx.ns.args[2] ?? "1024tb") // 1024 Tb
     let moneyAvailable = ctx.ns.getServerMoneyAvailable("home")
     const homeMachinesCount = ctx.ns.scan("home").filter((hostname) => hostname.startsWith(ctx.homeMachinePrefix)).length
     const machinesAvailable = Math.max(0, ctx.maxHomeMachines - homeMachinesCount)
@@ -17,18 +32,7 @@ export async function main(ns) {
     if (desiredMachineCount > machinesAvailable) {
         desiredMachineCount = machinesAvailable
     }
-    const maxRam = 1048576; // 1024 Tb
-    const ramString = `${minRam}`.toLowerCase();
-    if (ramString === "max") {
-        minRam = maxRam;
-    } else if (ramString.endsWith("t") || ramString.endsWith("tb")) {
-        minRam = ramString.replace("tb", "").replace("t", "") * 1024;
-    } else if (ramString.endsWith("g") || ramString.endsWith("gb")) {
-        minRam = ramString.replace("gb", "").replace("g", "");
-    }
-    if (minRam > 1048576) {
-        ctx.log.fatal(`Max RAM size option is "${maxRam}"GB (or use "Max" string).`);
-    }
+
     let targetRam = maxRam
     while (targetRam > minRam && desiredMachineCount > 0) {
         let oneMachineCost = ctx.ns.getPurchasedServerCost(targetRam)
