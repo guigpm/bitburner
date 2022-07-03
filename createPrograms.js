@@ -1,6 +1,4 @@
-import { getMaxThreads, growCondition, weakenCondition } from './lib.js';
 import { Context } from "./context";
-import { Process } from './process.js';
 
 function program(file, hackLevel) {
     return { "file": file, "hackLevel": hackLevel }
