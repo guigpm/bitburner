@@ -22,7 +22,7 @@ export class Process extends BaseContext {
         this.target = target;
         this.pid = this.ns.exec(this.script, target, threads, ...this.args);
         if (this.pid == 0) {
-            this.ctx.log.error(`@start Spawn failed for ${this.script} with args ${this.args} on ${this.target}`);
+            // this.ctx.log.error(`@start Spawn failed for ${this.script} with args ${this.args} on ${this.target}`);
         }
         else {
             this.ctx.log.trace(`@start script=${this.script} args=${this.args} target=${this.target} PID=${this.pid}`);

@@ -24,7 +24,7 @@ export async function main(ns) {
             await ctx.ns.sleep(20 * 1000);
         }
 
-        ctx.ns.singularity.createProgram(program.file, focus = true);
+        ctx.ns.singularity.createProgram(program.file, true);
         ctx.ns.tprint(`Program ${program.file} created!`);
     }
     return 0;

@@ -81,9 +81,12 @@ export class InvasionTarget extends Machine {
         this.ns.nuke(this.hostname);
     }
 
-    backdoor() {
-        throw 'Not implemented yet.';
-        // this.ns.singularity.installBackdoor()
+    async backdoor() {
+        return this.ns.singularity.installBackdoor()
+    }
+
+    connect() {
+        return this.ns.singularity.connect(this.hostname);
     }
 
     own() {

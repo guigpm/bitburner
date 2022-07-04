@@ -39,6 +39,33 @@ export class BreadthFirstSearch extends BaseContext {
         }
         return results.flat();
     }
+
+    /**
+     * @param {string} start 
+     * @param {string} target 
+     * @returns {string[]} Array of shortest path between start and target
+     */
+    pathToTarget(target, start = "home") {
+        const queue = new Queue();
+        queue.enqueue({ "name": start, "path": [start] })
+        const visited = [start];
+
+        while (!queue.isEmpty) {
+            const current = queue.dequeue();
+            if (current.name == target) {
+                return current.path.slice(1, current.path.length);
+            }
+            const adjacents = this.ctx.ns.scan(current.name);
+            for (const adjacent of adjacents) {
+                if (!visited.includes(adjacent)) {
+                    visited.push(adjacent);
+                    queue.enqueue({ "name": adjacent, "path": current.path.concat(adjacent) });
+                }
+            }
+        }
+        // No path found
+        return []
+    }
 }
 
 export class DepthFirstSearch extends BaseContext {
