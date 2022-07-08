@@ -17,14 +17,20 @@ export async function main(ns) {
         program("SQLInject.exe", 750),
         program("ServerProfiler.exe", 75)];
 
+    const createdPrograms = ctx.ns.ls("home")
     for (const program of programs) {
-        if (ctx.ns.fileExists(program.file)) continue;
+        if (createdPrograms.includes(program.file)) continue;
 
         while (ctx.ns.getHackingLevel() < program.hackLevel) {
             await ctx.ns.sleep(20 * 1000);
         }
 
-        ctx.ns.singularity.createProgram(program.file, true);
+        const started = ctx.ns.singularity.createProgram(program.file, false);
+        if (started) {
+            while (ctx.ns.singularity.isBusy()) {
+                await ctx.ns.sleep(20 * 1000);
+            }
+        }
         ctx.ns.tprint(`Program ${program.file} created!`);
     }
     return 0;
